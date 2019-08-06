@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import pandas as pd
 import re
@@ -29,7 +30,6 @@ class DataLoader:
         players_master = os.path.join(DIR_DATA, "players_master.csv")
         if not os.path.exists(players_master) or build_player_db:
             self.make_player_database()
-        self.players_master = pd.read_csv(players_master, encoding="utf-8")
 
         # Make the master DataFrame of all player gameweek data:
         df = pd.read_csv(os.path.join(DIR_DATA, "master.csv"), encoding="utf-8")
@@ -40,6 +40,13 @@ class DataLoader:
         uuid_map = dict(zip(uuids["year, id"], uuids["cross_season_id"]))
         df["player_uuid"] = df["year, id"].map(uuid_map)
         self.DF = df
+
+    @property
+    def players_master(self):
+        fp = os.path.join(DIR_DATA, "players_master.csv")
+        if not os.path.exists(fp):
+            self.make_player_database()
+        return pd.read_csv(fp, encoding="utf-8")
 
     def subset(self, year: int, week: int, n: int, cross_seasons=True):
         """Get a subset of raw gameweek data. The data will count back from the
@@ -312,26 +319,34 @@ class DataLoader:
         fp = os.path.join(DataLoader.season_dir(year), "players_raw.csv")
         return pd.read_csv(fp, encoding="utf-8")
 
-    def score_mean(self, agg_cols=None, subset=None, **kwargs):
-        if not subset:
+    def score(self, agg_func=np.mean, agg_cols=None, subset=None,
+              min_minute_percent=None, roi=False, **kwargs):
+        """Score a subset of data with the mean of each of the `agg_cols` for
+        each player.
+        """
+        if not isinstance(subset, pd.DataFrame):
             subset = self.subset(**kwargs)
         if not agg_cols:
-            agg_cols=["total_points", "bonus", "bps", "ict_index",
-                      "influence", "creativity", "threat"]
+            agg_cols = ["total_points", "bonus", "bps", "ict_index",
+                        "influence", "creativity", "threat"]
         df = subset.sort_values(by=["year, week", "name"])
-        df = df.groupby(["player_uuid"])[agg_cols].mean()
-        df.sort_values(by=agg_cols, inplace=True, ascending=False)
-        return df
 
-    def score_total(self, agg_cols=None, subset=None, **kwargs):
-        if not subset:
-            subset = self.subset(**kwargs)
-        if not agg_cols:
-            agg_cols=["total_points", "bonus", "bps", "ict_index",
-                      "influence", "creativity", "threat"]
-        df = subset.sort_values(by=["year, week", "name"])
-        df = df.groupby(["player_uuid"])[agg_cols].sum()
+        if roi:
+            # Get the player values in the last week of the subset:
+            values = df.loc[df["year, week"] == df["year, week"].max(), ["player_uuid", "value"]]
+            values = dict(zip(values["player_uuid"], values["value"]))
+
+        df = df.groupby(["player_uuid"])[agg_cols].apply(agg_func)
+        if roi:
+            df["most_recent_value"] = df.index.map(values)
+            for col in agg_cols:
+                df[col] = df[col] / df["most_recent_value"]
+
         df.sort_values(by=agg_cols, inplace=True, ascending=False)
+        if min_minute_percent:
+            df["minutes_percent"] = df.index.map(self.minutes_percent(subset))
+            df = df.loc[df["minutes_percent"] > min_minute_percent]
+
         return df
 
     @property
@@ -347,3 +362,10 @@ class DataLoader:
         df = df.loc[df["year"] == year]
         return dict(zip(df["id"], df["cross_season_id"]))
 
+    def minutes_percent(self, subset):
+        """Get the percent of total possible minutes that  each player played in
+        a subset of data."""
+        n_weeks = len(subset["year, week"].unique())
+        df = pd.DataFrame(subset.groupby(["player_uuid"])["minutes"].sum())
+        df["minutes_percent"] = df["minutes"] / (90 * n_weeks)
+        return dict(zip(df.index, df["minutes_percent"]))
