@@ -238,7 +238,7 @@ class DataLoader:
     def make_master():
         """Make master DF of all player GW data for all years.
         """
-        print("Making master gameweek CSV file ... ", end="")
+        print("Making master player gameweek CSV file ... ", end="")
 
         years = [int(y[:4]) for y in DataLoader.seasons()]
         df = pd.DataFrame()

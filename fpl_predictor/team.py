@@ -21,7 +21,8 @@ class Team:
     cap = 1000
 
     def __init__(self):
-        self.__team = pd.DataFrame(columns=["uuid", "position", "value", "score", "roi_score"])
+        self.team = pd.DataFrame(columns=["uuid", "name", "position", "value",
+                                          "score", "roi_score"])
         fp = os.path.join(DIR_DATA, "players_master.csv")
         df = pd.read_csv(fp, encoding="utf-8")
         df["name"] = df["first_name"].str.cat(df["second_name"], sep=" ")
@@ -29,36 +30,64 @@ class Team:
         self.player_names = dict(zip(df["uuid"], df["name"]))
         self.player_positions = dict(zip(df["uuid"], df["position"]))
 
+    def clear_team(self):
+        self.team = pd.DataFrame(columns=["uuid", "name", "position", "value",
+                                          "score", "roi_score"])
+
+    @property
+    def total_score(self):
+        return self.team["score"].sum()
+
+    @property
+    def total_points_over_period(self):
+        return self.team["score"].sum()
+
     @property
     def total_value(self):
-        return self.__team["value"].sum()
+        return self.team["value"].sum()
+
+    @property
+    def available_budget(self):
+        return 1000 - self.total_value
 
     @property
     def selected_players(self):
-        return sorted(self.__team["uuid"])
+        return sorted(self.team["uuid"])
 
     def add_player(self, uuid: str, value: float, score: float, roi_score: float):
         position = self.player_positions[uuid]
         new_player = {"uuid": uuid, "value": value, "position": position,
-                      "score": score, "roi_score": roi_score}
+                      "score": score, "roi_score": roi_score,
+                      "name": self.player_names[uuid]}
         if len(self.team.loc[self.team["position"] == position]) == self.limits[position]:
             raise PositionFilled()
         if self.total_value + value > self.cap:
             raise NotEnoughMoney()
         if uuid in self.selected_players:
             raise AlreadySelected()
-        self.__team = self.__team.append(new_player, ignore_index=True)
+        self.team = self.team.append(new_player, ignore_index=True)
 
-    @property
-    def team(self):
-        df = self.__team.reset_index(drop=True)
-        df["name"] = df["uuid"].map(self.player_names)
-        return df
+    def remove_player(self, uuid):
+        if uuid not in list(self.team["uuid"]):
+            raise ValueError(f"uuid not in team: {uuid}")
+        self.team = self.team.loc[self.team["uuid"] != uuid]
 
     @property
     def filled(self):
-        if len(self.__team) == 15:
-            return True
-        else:
-            return False
+        return True if len(self.team) == 15 else False
+
+    @property
+    def filled_by_position(self):
+        filled = dict(self.team["position"].value_counts())
+        template = {"FWD": 0, "MID": 0, "DEF": 0, "GK": 0}
+        return {**template, **filled}
+
+    @property
+    def empty_by_position(self):
+        filled = self.filled_by_position
+        return {k: v - filled[k] for k, v in self.limits.items()}
+
+    @property
+    def need_positions(self):
+        return [k for k, v in self.empty_by_position.items() if v]
 
