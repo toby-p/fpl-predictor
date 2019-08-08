@@ -1,3 +1,7 @@
 *.idea
 *.ipynb
 **/__pycache__
+
+**/strategies/
+!**/strategies/sample.py
+!**/strategies/README.txt

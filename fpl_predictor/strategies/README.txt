@@ -1,0 +1,1 @@
+The sample here is provided as an example strategy for picking teams. The rest of my strategies are hidden, sorry - that's the secret sauce!

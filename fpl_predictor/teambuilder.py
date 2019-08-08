@@ -11,8 +11,27 @@ from fpl_predictor.dataloader import DataLoader
 class TeamBuilder:
     def __init__(self, year, week, n=10, min_minute_percent=0.5,
                  cross_seasons=False, agg_func=np.mean, agg_col="total_points"):
-        self.year = year
-        self.week = week
+        """Build a team squad with the highest possible score on the given
+        metrics. Note that the player scores are calculated on the WEEK PRIOR to
+        the given year-week combination. So if the year-week is 2018-1, then the
+        scores will be calculated on the previous season's data.
+
+        Args:
+            year (int): year to choose the team for.
+            week (int): gameweek to choose the team for.
+            n (int): number of weeks' of historic data to score the players on.
+            min_minute_percent (float): ratio of total possible minutes of the
+                previous `n` games that a player must have played in to be
+                eligible for selection.
+            cross_seasons (bool): if True, use historic data from the previous
+                season when scoring players (True by default for the first week
+                of a year).
+            agg_func (function): function to use in scoring player data.
+            agg_col (str): the column of gameweek data to use to score players
+                to create their ranking. Effectively this is picking your team.
+        """
+        self.year, self.week = year, week
+        self.scoring_year, self.scoring_week = previous_week(year, week)
         self.n = n
         self.min_minute_percent = min_minute_percent
         self.cross_seasons = cross_seasons if week > 1 else True
@@ -34,31 +53,31 @@ class TeamBuilder:
         self.values = dict(zip(self.gw["uuid"], self.gw["value"]))
 
         # Load the previous week's data:
-        prev_year, prev_week = previous_week(year, week)
-        self.prev_gw = DataLoader.gw(prev_year, prev_week)
-
-        year_ids = uuids.loc[uuids["year"] == prev_year]
+        self.prev_gw = DataLoader.gw(self.scoring_year, self.scoring_week)
+        year_ids = uuids.loc[uuids["year"] == self.scoring_year]
         year_ids = dict(zip(year_ids["id"], year_ids["cross_season_id"]))
         self.prev_gw["uuid"] = self.prev_gw["element"].map(year_ids)
 
-        # Store player IDs who missed previous week:
+        # Store player IDs who missed previous week. This is used as a proxy for
+        # availability in the historic data, as this data isn't available.
         self.missed_prev_week = sorted(self.prev_gw.loc[self.prev_gw["minutes"] == 0, "uuid"])
 
         # Attributes for tracking team selections:
         self.team = Team()
         self._old_team = self.team.team
-
         self.scores = self.score()
         self.scores["position"] = self.scores.index.map(self.team.player_positions)
         self.scores["value"] = self.scores.index.map(self.values)
+
+        # Attribute for storing the first team selection:
+        self.__first_team = pd.DataFrame()
 
     def revert(self):
         self.team.team = self._old_team
 
     def score(self):
-        subset = self.dataloader.subset(year=self.year, week=self.week, n=self.n,
-                                        cross_seasons=self.cross_seasons)
-
+        subset = self.dataloader.subset(year=self.scoring_year, week=self.scoring_week,
+                                        n=self.n, cross_seasons=self.cross_seasons)
         raw_scores = self.dataloader.score(subset=subset,
                                            min_minute_percent=self.min_minute_percent,
                                            agg_func=self.agg_func, agg_cols=[self.agg_col])
@@ -148,97 +167,42 @@ class TeamBuilder:
         print(f"Build team with total score {self.team.total_score}, "
               f"remaining budget {self.team.available_budget}")
 
-    def optimise_1(self, n_top_score=5, x_bottom_roi=5):
-        """Select a player from the top n number of players ranked by score, and
-        replace them with a cheaper player with a higher roi score. Then drop a
-        player with one of the bottom x roi scores and replace them with a
-        player with a higher total score. If the total score of the team
-        increases keep the changes, else revert to the previous team.
-        """
-        if not self.team.filled:
-            print("Team must be filled before being optimized.")
-            return
+    def pick_first_team(self, by=("score", "roi_score")):
+        """Pick the highest scoring 11 players from the team squad, sorted by
+        the columns given in the `by` argument"""
+        by = list(by)
+        df = self.team.team.copy()
+        df.sort_values(by=by, ascending=False, inplace=True)
+        max_pos_picks = {"GK": 1, "DEF": 5, "MID": 5, "FWD": 5}
+        pos_filled = {k: 0 for k in max_pos_picks}
+        first_team = pd.DataFrame(columns=df.columns)
+        for row in df.iterrows():
+            player = row[1].to_dict()
+            position = player["position"]
+            position_count = len(first_team.loc[first_team["position"] == position])
+            if position_count < max_pos_picks[position]:
+                first_team = first_team.append(player, ignore_index=True)
+                pos_filled[position] += 1
+            if len(first_team) == 11:
+                break
 
-        self._old_team, old_score = self.team.team.copy(), self.team.total_score
-        team = self.team.team.copy()
-        n_new_player, x_new_player = None, None
-        n_remove_player, x_remove_player = None, None
+        # If a position has no players, drop the lowest player from the other positions:
+        missing = [k for k, v in pos_filled.items() if v == 0]
+        if len(missing):
+            missing_position = missing[0]
+            to_remove = first_team.loc[first_team["position"] != "GK"].copy()
+            to_remove.sort_values(by=by, ascending=False, inplace=True)
+            to_remove = list(to_remove["uuid"])[-1]
+            first_team = first_team.loc[first_team["uuid"] != to_remove]
+            to_add = df.loc[df["position"] == missing_position].copy()
+            to_add.sort_values(by=by, ascending=False, inplace=True)
+            for row in to_add.iterrows():
+                player = row[1].to_dict()
+                first_team = first_team.append(player, ignore_index=True)
+                break
 
-        # Randomly choose a player with a top n score:
-        team.sort_values(by="score", ascending=False, inplace=True)
-        team.reset_index(drop=True, inplace=True)
-        top_n = list(team.loc[:n_top_score, "uuid"])
-        random.shuffle(top_n)
-        for n in top_n:
-            position = self.team.player_positions[n]
-            roi = team.loc[team["uuid"] == n, "roi_score"].values[0]
-            max_price = 1000 - (self.team.total_value - team.loc[team["uuid"] == n, "value"].values[0])
-            print(max_price)
-            pool = self.player_pool(position=position, drop_missed_prev_week=True,
-                                    drop_unavailable=True, min_score=None, min_roi=roi,
-                                    max_price=max_price)
-            if len(pool):
-                n_new_player = self.select_player(pool)
-                n_remove_player = n
+        self.__first_team = first_team
 
-        # Randomly choose a player with a bottom x roi:
-        team.sort_values(by="roi_score", ascending=True, inplace=True)
-        team.reset_index(drop=True, inplace=True)
-        bottom_x = list(team.loc[:x_bottom_roi, "uuid"])
-        random.shuffle(bottom_x)
-        for x in bottom_x:
-            position = self.team.player_positions[x]
-            score = self.team.team.loc[team["uuid"] == x, "score"].values[0]
-            max_price = 1000 - (self.team.total_value - team.loc[team["uuid"] == x, "value"].values[0])
-            print(max_price)
-            pool = self.player_pool(position=position, drop_missed_prev_week=True,
-                                    drop_unavailable=True, min_score=score, min_roi=None,
-                                    max_price=max_price)
-            if len(pool):
-                x_new_player = self.select_player(pool)
-                x_remove_player = x
-
-        if n_new_player and x_new_player:
-            self.team.remove_player(n_remove_player)
-            print(f"Removed player {self.team.player_names[n_remove_player]} ", end="")
-            self.team.add_player(**n_new_player)
-            print(f"added player {self.team.player_names[n_new_player['uuid']]}")
-            self.team.remove_player(x_remove_player)
-            print(f"Removed player {self.team.player_names[x_remove_player]} ", end="")
-            self.team.add_player(**x_new_player)
-            print(f"added player {self.team.player_names[x_new_player['uuid']]}")
-
-        else:
-            print("Couldn't find players.")
-            self.revert()
-            return
-
-        if self.team.total_score > old_score:
-            print(f"Increased score by {self.team.total_score - old_score:,}")
-        else:
-            print("No score improvement.")
-            self.revert()
-
-    def optimize(self, iterations=10):
-        """Needs some work."""
-        for i in range(iterations):
-            df = self.team.team.sort_values(by=["roi_score"], ascending=True)
-            for row in df.iterrows():
-                player = row[1]
-                budget = self.team.available_budget + player["value"]
-                print(budget)
-                position = player["position"]
-                score = player["score"]
-                roi_score = player["roi_score"]
-                pool = self.player_pool(position=position, drop_missed_prev_week=True,
-                                        drop_unavailable=True, min_score=None,
-                                        min_roi=roi_score, max_price=budget)
-
-                if len(pool):
-                    remove_uuid = player["uuid"]
-                    r_name = self.team.player_names[remove_uuid]
-                    self.team.remove_player(remove_uuid)
-                    new = self.select_player(pool, select_by_roi=True)
-                    self.team.add_player(**new)
-                    a_name = self.team.player_names[new["uuid"]]
-                    print(f"Found improvement - removed {r_name} for {a_name}.")
+    @property
+    def first_team(self):
+        return self.__first_team
