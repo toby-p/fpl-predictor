@@ -1,6 +1,7 @@
 *.idea
 *.ipynb
 **/__pycache__
+__deprecated.py
 
 **/strategies/
 !**/strategies/sample.py
