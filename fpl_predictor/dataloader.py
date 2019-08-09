@@ -1,3 +1,5 @@
+
+import datetime
 import numpy as np
 import os
 import pandas as pd
@@ -46,7 +48,9 @@ class DataLoader:
         fp = os.path.join(DIR_DATA, "players_master.csv")
         if not os.path.exists(fp):
             self.make_player_database()
-        return pd.read_csv(fp, encoding="utf-8")
+        df = pd.read_csv(fp, encoding="utf-8")
+        df["year, id"] = tuple(zip(df["year"], df["id"]))
+        return df
 
     def subset(self, year: int, week: int, n: int, cross_seasons=True):
         """Get a subset of raw gameweek data. The data will count back from the
@@ -72,6 +76,11 @@ class DataLoader:
         df["year"] = [int(s[:4]) for s in df["Season"]]
         df["year, week"] = tuple(zip(df["year"], df["GW"]))
         df = df.loc[df["year, week"].isin(ix)]
+
+        # Map in the player's team:
+        teams = dict(zip(self.players_master["year, id"], self.players_master["team"]))
+        df["team"] = df["year, id"].map(teams)
+
         return df.reset_index(drop=True)
 
     def player_values(self, year, week):
@@ -196,7 +205,8 @@ class DataLoader:
 
     @staticmethod
     def player_dir(year: int, player_id: int):
-        """Absolute file path of the directory of player data for the given season start year.
+        """Absolute file path of the directory of player data for the given
+        season start year.
         """
         path = os.path.join(DataLoader.season_dir(year), "players")
         player_dirs = os.listdir(path)
@@ -252,18 +262,32 @@ class DataLoader:
         df.to_csv(fp, encoding="utf-8", index=False)
         check()
 
-    @staticmethod
-    def gw(year: int, week: int):
+    def gw(self, year: int, week: int):
+        """Return the gameweek data for the given year-week combination."""
         path = os.path.join(DataLoader.season_dir(year), "gws")
-        if week in range(1, 39, 1):
-            filename = f"gw{week}.csv"
-            df = pd.read_csv(os.path.join(path, filename), encoding='latin1')
-        elif week == "merged":
-            filename = "merged_gw.csv"
-            fp = os.path.join(path, filename)
-            if not os.path.exists(fp):
-                DataLoader.make_merged_gw_csv(year)
-            df = pd.read_csv(os.path.join(path, filename), encoding='latin1')
+        filename = f"gw{week}.csv"
+        df = pd.read_csv(os.path.join(path, filename), encoding='latin1')
+        df["year"] = year
+        df["year, element"] = tuple(zip(df["year"], df["element"]))
+        uuids = dict(zip(self.player_uuids["year, id"],
+                         self.player_uuids["cross_season_id"]))
+        df["uuid"] = df["year, element"].map(uuids)
+        return df
+
+    @property
+    def current_api_elements(self):
+        """Return the current `elements` data returned by the API, with UUID."""
+        df = self.api_data.elements.copy()
+        curr_month = datetime.datetime.now().month
+        year = datetime.datetime.now().year
+        if curr_month in range(1, 8, 1):
+            year -= 1
+        df["year"] = year
+        df["year, id"] = tuple(zip(df["year"], df["id"]))
+        uuids = dict(zip(self.player_uuids["year, id"],
+                         self.player_uuids["cross_season_id"]))
+        df["uuid"] = df["year, id"].map(uuids)
+        df["team_name"] = df["team"].map(self.team_ids)
         return df
 
     @staticmethod
@@ -369,3 +393,8 @@ class DataLoader:
         df = pd.DataFrame(subset.groupby(["player_uuid"])["minutes"].sum())
         df["minutes_percent"] = df["minutes"] / (90 * n_weeks)
         return dict(zip(df.index, df["minutes_percent"]))
+
+    @property
+    def team_ids(self):
+        teams = self.api_data.data["teams"]
+        return {t["id"]: t["name"] for t in teams}
