@@ -10,8 +10,7 @@ from fpl_predictor.dataloader import DataLoader
 class TeamBuilder:
     def __init__(self, year, week, n=10, min_minute_percent=0.5,
                  cross_seasons=False, agg_func=np.mean, agg_col="total_points",
-                 n_by_score=3, pick_first_team_by="score",
-                 live_availability=False):
+                 n_by_score=3, pick_team_by="score", live_availability=False):
         """Build a team squad with the highest possible score on the given
         metrics. Note that the player scores are calculated on the WEEK PRIOR to
         the given year-week combination. So if the year-week is 2018-1, then the
@@ -42,7 +41,7 @@ class TeamBuilder:
         self.cross_seasons = cross_seasons
         self.agg_func = agg_func
         self.agg_col = agg_col
-        self.pick_first_team_by = pick_first_team_by
+        self.pick_team_by = pick_team_by
         self.n_by_score = n_by_score
         self.live_availability = live_availability
 
@@ -181,17 +180,21 @@ class TeamBuilder:
         print(f"Build team with {n_by_score} players chosen by raw "
               f"score, {15 - n_by_score} by roi. Total score = {self.team.total_score}. "
               f"Remaining budget = {self.team.available_budget}")
-        self.pick_first_team(sort_by=self.pick_first_team_by)
+        self.pick_first_team(sort_by=self.pick_team_by)
 
-    def pick_first_team(self, sort_by="score"):
-        """Pick the highest scoring 11 players from the team squad, sorted by
-        the columns given in the `by` argument."""
+    def _sort_cols(self, sort_by="score"):
         if sort_by == "score":
             sort_by = ["score", "roi_score"]
         elif sort_by == "roi_score":
             sort_by = ["roi_score", "score"]
         else:
             raise ValueError(f"Invalid `sort_by` arg: {sort_by}")
+        return sort_by
+
+    def pick_first_team(self, sort_by="score"):
+        """Pick the highest scoring 11 players from the team squad, sorted by
+        the columns given in the `by` argument."""
+        sort_by = self._sort_cols(sort_by)
         df = self.team.team.copy()
         df.sort_values(by=sort_by, ascending=False, inplace=True)
         max_pos_picks = {"GK": 1, "DEF": 5, "MID": 5, "FWD": 5}
@@ -252,3 +255,43 @@ class TeamBuilder:
         team["team"] = team["uuid"].map(team_dict)
         team = team["team"].value_counts().to_dict()
         return [k for k, v in team.items() if v == 3]
+
+    def evaluate_transfers(self, sort_by="score"):
+        transfers = pd.DataFrame(columns=["old", "new", "score_differential",
+                                          "roi_differential", "value_differential"])
+        df = self.team.team.copy()
+        for row in df.iterrows():
+            player = row[1].to_dict()
+            pool = self.player_pool(position=player["position"],
+                                    drop_unavailable=True,
+                                    min_score=player["score"],
+                                    min_roi=["roi_score"],
+                                    max_price=player["value"] + self.team.available_budget)
+            if len(pool):
+                new_player = pool.loc[list(pool.index)[0]].to_dict()
+                new_player["uuid"] = list(pool.index)[0]
+                transfer = {"old": player["uuid"], "new": new_player["uuid"],
+                            "score_differential": new_player["total_points (raw)"] - player["score"],
+                            "roi_differential": new_player["total_points (roi)"] - player["roi_score"],
+                            "value_differential": new_player["value"] - player["value"],
+                            }
+                transfers = transfers.append(transfer, ignore_index=True)
+
+        # Remove any players transferring in twice:
+        if sort_by == "score":
+            sort_by = "score_differential"
+        elif sort_by == "score_roi":
+            sort_by = "roi_differential"
+        transfers.sort_values(by=sort_by, ascending=False)
+        transfers.drop_duplicates(subset=["new"], keep="first")
+
+        # Make sure no existing players in transfers:
+        transfers = transfers.loc[~transfers["new"].isin(self.team.team["uuid"].unique())]
+
+        return transfers
+
+    def add_player(self, uuid: str):
+        value = self.scores.loc[uuid]["value"]
+        score = self.scores.loc[uuid]["total_points (raw)"]
+        roi_score = self.scores.loc[uuid]["total_points (roi)"]
+        self.team.add_player(uuid, value, score, roi_score)

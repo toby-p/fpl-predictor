@@ -1,5 +1,8 @@
 *.idea
+
 *.ipynb
+!/bugs.ipynb
+
 **/__pycache__
 __deprecated.py
 
