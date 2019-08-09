@@ -2,15 +2,15 @@ from numbers import Number
 import numpy as np
 import pandas as pd
 
-from functions import previous_week
-from team import Team
+from .functions import previous_week
+from .team import Team
 from fpl_predictor.dataloader import DataLoader
 
 
 class TeamBuilder:
     def __init__(self, year, week, n=10, min_minute_percent=0.5,
                  cross_seasons=False, agg_func=np.mean, agg_col="total_points",
-                 n_by_score=3, pick_team_by="score", live_availability=False):
+                 n_by_score=3, pick_team_by="score", live_data=False):
         """Build a team squad with the highest possible score on the given
         metrics. Note that the player scores are calculated on the WEEK PRIOR to
         the given year-week combination. So if the year-week is 2018-1, then the
@@ -31,8 +31,8 @@ class TeamBuilder:
                 to create their ranking. Effectively this is picking your team.
             n_by_score (int): number of players to select based on raw score
                 when building team, before selecting on roi.
-            live_availability (bool): whether or not to use live API data to
-                determine player availability.
+            live_data (bool): whether or not to use live API data to determine
+                cost and player availability.
         """
         self.year, self.week = year, week
         self.scoring_year, self.scoring_week = previous_week(year, week)
@@ -43,15 +43,22 @@ class TeamBuilder:
         self.agg_col = agg_col
         self.pick_team_by = pick_team_by
         self.n_by_score = n_by_score
-        self.live_availability = live_availability
+        self.live_data = live_data
 
         self.dataloader = DataLoader(make_master=False, build_player_db=False)
 
         # Load the gameweek data:
-        self.gw = self.dataloader.gw(year, week)
+        try:
+            self.gw = self.dataloader.gw(year, week)
+        except FileNotFoundError:
+            pass
 
         # Get the current player values:
-        self.values = dict(zip(self.gw["uuid"], self.gw["value"]))
+        if not live_data:
+            self.values = dict(zip(self.gw["uuid"], self.gw["value"]))
+        else:
+            self.values = dict(zip(self.dataloader.current_api_elements["uuid"],
+                                   self.dataloader.current_api_elements["now_cost"]))
 
         # Load the previous week's data:
         self.prev_gw = self.dataloader.gw(self.scoring_year, self.scoring_week)
@@ -97,7 +104,7 @@ class TeamBuilder:
         """
         df = self.scores.copy()
         if drop_unavailable:
-            available = self.available_players(live_data=self.live_availability)
+            available = self.available_players(live_data=self.live_data)
             df = df.loc[df.index.isin(available)]
         if position:
             if isinstance(position, str):
@@ -257,6 +264,8 @@ class TeamBuilder:
         return [k for k, v in team.items() if v == 3]
 
     def evaluate_transfers(self, sort_by="score"):
+        """Evaluate the current team against any possible transfers which will
+        improve the overall team score."""
         transfers = pd.DataFrame(columns=["old", "new", "score_differential",
                                           "roi_differential", "value_differential"])
         df = self.team.team.copy()
@@ -295,3 +304,13 @@ class TeamBuilder:
         score = self.scores.loc[uuid]["total_points (raw)"]
         roi_score = self.scores.loc[uuid]["total_points (roi)"]
         self.team.add_player(uuid, value, score, roi_score)
+
+    @property
+    def captain(self):
+        df = self.first_team.sort_values(by="score")
+        return df.loc[list(df.index)[-1], "name"]
+
+    @property
+    def vice_captain(self):
+        df = self.first_team.sort_values(by="score")
+        return df.loc[list(df.index)[-2], "name"]
