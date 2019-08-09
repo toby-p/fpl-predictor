@@ -184,12 +184,14 @@ class TeamBuilder:
             player = self.select_player(pool, select_by_roi=True)
             self.team.add_player(**player)
 
-        print(f"Build team with {n_by_score} players chosen by raw "
-              f"score, {15 - n_by_score} by roi. Total score = {self.team.total_score}. "
+        print(f"Build team with {n_by_score} players by raw score, {15 - n_by_score} by roi, "
+              f"using {self.n} games data. "
+              f"Total score = {self.team.total_score}. "
               f"Remaining budget = {self.team.available_budget}")
         self.pick_first_team(sort_by=self.pick_team_by)
 
-    def _sort_cols(self, sort_by="score"):
+    @staticmethod
+    def _sort_cols(sort_by="score"):
         if sort_by == "score":
             sort_by = ["score", "roi_score"]
         elif sort_by == "roi_score":
