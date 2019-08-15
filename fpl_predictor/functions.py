@@ -18,3 +18,20 @@ def previous_week(year: int, week: int):
 
 def check():
     print("\u2713")
+
+
+def year_week_minus_n(year: int, week: int, n: int):
+    """Get the gameweek `n` weeks prior to the given `year` and `week`
+    combination INCLUDING the year-week. So if `n` is 1, just the year-week
+    itself is returned."""
+    assert 0 < week < 39
+    assert n > 0
+    n -= 1
+    new_week = week - (n % 38)
+    if new_week <= 0:
+        new_week = sum([38, new_week])
+    if n >= week:
+        new_year = year - (1 + ((n - week) // 38))
+    else:
+        new_year = year
+    return new_year, new_week
