@@ -1,4 +1,7 @@
 
+import numpy as np
+import pandas as pd
+
 
 def next_week(year: int, week: int):
     assert week in list(range(1, 39, 1)), "Invalid week - must be int between 1 and 38."
@@ -35,3 +38,45 @@ def year_week_minus_n(year: int, week: int, n: int):
     else:
         new_year = year
     return new_year, new_week
+
+
+def index_players(df, column="ict_index"):
+    """Create an indexed DataFrame of player values for the given column of data
+     in the raw `df`. The returned DataFrame has player codes as columns, and
+     year and gameweek as a nested index.
+
+    Args:
+        df (pd.DataFrame): raw data, (usually the `master` csv).
+        column (str): column in `master` to get data from.
+    """
+    df = pd.pivot_table(df, index=["year", "GW"], columns=["code"], values=column)
+    return df
+
+
+def aggregate_index(index, year: int, week: int, n: int,
+                    agg_func=np.mean, cross_seasons=True):
+    """Aggregate the results from the `index_players` function across the `n`
+    weeks up to and including the gameweek given by `year` and `week`.
+
+    Args:
+        index (pd.DataFrame): result from the `index_players` function.
+        year (int): gameweek year to count back from (inclusive).
+        week (int): gameweek week to count back from (inclusive).
+        n (int): number of gameweeks to aggregate.
+        agg_func (function): function to use to aggregate data.
+        cross_seasons (bool): if not True, only gameweeks in the same year
+            as `year` are returned (so `n` may be reduced).
+    """
+    df = index.copy()
+    min_year, min_week = year_week_minus_n(year, week, n)
+    if not cross_seasons:
+        min_year = year
+        min_week = max([1, week - n + 1])
+    df = df.iloc[(((df.index.get_level_values("year") >= min_year) &
+                   (df.index.get_level_values("GW") >= min_week)) |
+                  (df.index.get_level_values("year") > min_year)) &
+                 (((df.index.get_level_values("year") == year) &
+                   (df.index.get_level_values("GW") <= week)) |
+                  (df.index.get_level_values("year") < year))
+                 ]
+    return agg_func(df).sort_values(ascending=False)

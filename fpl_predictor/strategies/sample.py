@@ -1,5 +1,5 @@
 
-from fpl_predictor.teambuilder import TeamBuilder
+from __deprecated__.teambuilder import TeamBuilder
 
 
 class Strategy:

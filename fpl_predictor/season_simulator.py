@@ -1,9 +1,8 @@
 
 import pandas as pd
 
-from fpl_predictor.dataloader import DataLoader
-from fpl_predictor.team import AlreadySelected
-from fpl_predictor.teambuilder import TeamBuilder
+from __deprecated__.dataloader import DataLoader
+from __deprecated__.teambuilder import TeamBuilder
 
 
 class SeasonSimulator:

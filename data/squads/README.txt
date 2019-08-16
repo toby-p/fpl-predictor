@@ -1,0 +1,1 @@
+Storage folder for fantasy teams created by the package.
