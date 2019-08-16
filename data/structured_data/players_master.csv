@@ -1969,12 +1969,19 @@ Edward Nketiah,Arsenal,205533,4,Edward,13,Nketiah,None,1,3,Nketiah,2019,2019-20,
 Bernd Leno,Arsenal,80201,1,Bernd,14,Leno,None,1,3,Leno,2019,2019-20,GK
 Mesut Özil,Arsenal,37605,3,Mesut,15,Özil,None,1,3,Özil,2019,2019-20,MID
 Henrikh Mkhitaryan,Arsenal,57249,3,Henrikh,16,Mkhitaryan,None,1,3,Mkhitaryan,2019,2019-20,MID
-Alex Iwobi,Arsenal,153133,3,Alex,17,Iwobi,None,1,3,Iwobi,2019,2019-20,MID
 Granit Xhaka,Arsenal,84450,3,Granit,18,Xhaka,None,1,3,Xhaka,2019,2019-20,MID
 Lucas Torreira,Arsenal,198849,3,Lucas,19,Torreira,None,1,3,Torreira,2019,2019-20,MID
 Mohamed Elneny,Arsenal,153256,3,Mohamed,20,Elneny,None,1,3,Elneny,2019,2019-20,MID
 Matteo Guendouzi,Arsenal,242166,3,Matteo,21,Guendouzi,None,1,3,Guendouzi,2019,2019-20,MID
+David Luiz Moreira Marinho,Arsenal,41270,2,David,106,Luiz Moreira Marinho,None,1,3,David Luiz,2019,2019-20,DEF
 Emiliano Martínez,Arsenal,98980,1,Emiliano,427,Martínez,None,1,3,Martínez,2019,2019-20,GK
+Calum Chambers,Arsenal,101184,2,Calum,467,Chambers,None,1,3,Chambers,2019,2019-20,DEF
+Daniel Ceballos Fernández,Arsenal,182539,3,Daniel,469,Ceballos Fernández,None,1,3,Ceballos,2019,2019-20,MID
+Nicolas Pépé,Arsenal,195735,3,Nicolas,488,Pépé,None,1,3,Pépé,2019,2019-20,MID
+Reiss Nelson,Arsenal,200641,3,Reiss,489,Nelson,None,1,3,Nelson,2019,2019-20,MID
+Joseph Willock,Arsenal,200089,3,Joseph,490,Willock,None,1,3,Willock,2019,2019-20,MID
+Gabriel Teodoro Martinelli Silva,Arsenal,444145,4,Gabriel Teodoro,504,Martinelli Silva,None,1,3,Martinelli,2019,2019-20,FWD
+Kieran Tierney,Arsenal,192895,2,Kieran,515,Tierney,None,1,3,Tierney,2019,2019-20,DEF
 Ahmed El Mohamady,Aston Villa,37339,2,Ahmed,22,El Mohamady,None,2,7,El Mohamady,2019,2019-20,DEF
 James Chester,Aston Villa,43252,2,James,23,Chester,None,2,7,Chester,2019,2019-20,DEF
 Neil Taylor,Aston Villa,47390,2,Neil,24,Taylor,None,2,7,Taylor,2019,2019-20,DEF
@@ -1990,12 +1997,18 @@ Birkir Bjarnason,Aston Villa,27770,3,Birkir,33,Bjarnason,None,2,7,Bjarnason,2019
 Keinan Davis,Aston Villa,221239,3,Keinan,34,Davis,None,2,7,Davis,2019,2019-20,MID
 Henri Lansbury,Aston Villa,40564,3,Henri,35,Lansbury,None,2,7,Lansbury,2019,2019-20,MID
 José Ignacio Peleteiro Romallo,Aston Villa,89274,3,José Ignacio,36,Peleteiro Romallo,None,2,7,Jota,2019,2019-20,MID
+Tom Heaton,Aston Villa,21205,1,Tom,94,Heaton,None,2,7,Heaton,2019,2019-20,GK
 Matt Targett,Aston Villa,169359,2,Matt,309,Targett,None,2,7,Targett,2019,2019-20,DEF
 Wesley Moraes,Aston Villa,213345,4,Wesley,428,Moraes,None,2,7,Wesley,2019,2019-20,FWD
 Jed Steer,Aston Villa,79852,1,Jed,429,Steer,None,2,7,Steer,2019,2019-20,GK
 Tyrone Mings,Aston Villa,149484,2,Tyrone,445,Mings,None,2,7,Mings,2019,2019-20,DEF
 Ezri Konsa Ngoyo,Aston Villa,199798,2,Ezri,452,Konsa Ngoyo,None,2,7,Konsa,2019,2019-20,DEF
 Bjorn Engels,Aston Villa,108156,2,Bjorn,455,Engels,None,2,7,Engels,2019,2019-20,DEF
+Frédéric Guilbert,Aston Villa,203368,2,Frédéric,458,Guilbert,None,2,7,Guilbert,2019,2019-20,DEF
+Mahmoud Ahmed Ibrahim Hassan,Aston Villa,148508,3,Mahmoud Ahmed,465,Ibrahim Hassan,None,2,7,Trézéguet,2019,2019-20,MID
+Douglas Luiz Soares de Paulo,Aston Villa,230046,3,Douglas Luiz,470,Soares de Paulo,None,2,7,Douglas Luiz,2019,2019-20,MID
+Lovre Kalinic,Aston Villa,88175,1,Lovre,474,Kalinic,None,2,7,Kalinic,2019,2019-20,GK
+Marvelous Nakamba,Aston Villa,184704,3,Marvelous,491,Nakamba,None,2,7,Nakamba,2019,2019-20,MID
 Steve Cook,Bournemouth,56917,2,Steve,58,Cook,None,3,91,Steve Cook,2019,2019-20,DEF
 Nathan Aké,Bournemouth,126184,2,Nathan,59,Aké,None,3,91,Aké,2019,2019-20,DEF
 Charlie Daniels,Bournemouth,41320,2,Charlie,60,Daniels,None,3,91,Daniels,2019,2019-20,DEF
@@ -2008,7 +2021,6 @@ Jack Simpson,Bournemouth,222434,2,Jack,66,Simpson,None,3,91,Simpson,2019,2019-20
 Callum Wilson,Bournemouth,75115,4,Callum,67,Wilson,None,3,91,Wilson,2019,2019-20,FWD
 Joshua King,Bournemouth,78007,4,Joshua,68,King,None,3,91,King,2019,2019-20,FWD
 Dominic Solanke,Bournemouth,154566,4,Dominic,69,Solanke,None,3,91,Solanke,2019,2019-20,FWD
-Lys Mousset,Bournemouth,178304,4,Lys,70,Mousset,None,3,91,Mousset,2019,2019-20,FWD
 Sam Surridge,Bournemouth,217331,4,Sam,71,Surridge,None,3,91,Surridge,2019,2019-20,FWD
 Asmir Begovic,Bournemouth,40349,1,Asmir,72,Begovic,None,3,91,Begovic,2019,2019-20,GK
 Artur Boruc,Bournemouth,18726,1,Artur,73,Boruc,None,3,91,Boruc,2019,2019-20,GK
@@ -2022,6 +2034,10 @@ Andrew Surman,Bournemouth,15237,3,Andrew,80,Surman,None,3,91,Surman,2019,2019-20
 Dan Gosling,Bournemouth,40387,3,Dan,81,Gosling,None,3,91,Gosling,2019,2019-20,MID
 Jefferson Lerma,Bournemouth,152551,3,Jefferson,82,Lerma,None,3,91,Lerma,2019,2019-20,MID
 Jack Stacey,Bournemouth,154131,2,Jack,446,Stacey,None,3,91,Stacey,2019,2019-20,DEF
+Philip Billing,Bournemouth,168991,3,Philip,476,Billing,None,3,91,Billing,2019,2019-20,MID
+Arnaut Danjuma Groeneveld,Bournemouth,220307,3,Arnaut,492,Danjuma Groeneveld,None,3,91,Danjuma,2019,2019-20,MID
+Aaron Ramsdale,Bournemouth,225321,1,Aaron,494,Ramsdale,None,3,91,Ramsdale,2019,2019-20,GK
+Harry Wilson,Bournemouth,153682,3,Harry,505,Wilson,None,3,91,Wilson,2019,2019-20,MID
 Shane Duffy,Brighton,61933,2,Shane,37,Duffy,None,4,36,Duffy,2019,2019-20,DEF
 Martín Montoya,Brighton,86153,2,Martín,38,Montoya,None,4,36,Montoya,2019,2019-20,DEF
 Bernardo Fernandes da Silva Junior,Brighton,209362,2,Bernardo,39,Fernandes da Silva Junior,None,4,36,Bernardo,2019,2019-20,DEF
@@ -2044,6 +2060,10 @@ Solomon March,Brighton,109345,3,Solomon,55,March,None,4,36,March,2019,2019-20,MI
 Beram Kayal,Brighton,38490,3,Beram,56,Kayal,None,4,36,Kayal,2019,2019-20,MID
 Dale Stephens,Brighton,40845,3,Dale,57,Stephens,None,4,36,Stephens,2019,2019-20,MID
 Leandro Trossard,Brighton,116216,3,Leandro,421,Trossard,None,4,36,Trossard,2019,2019-20,MID
+Dan Burn,Brighton,78916,2,Dan,475,Burn,None,4,36,Burn,2019,2019-20,DEF
+Adam Webster,Brighton,110735,2,Adam,493,Webster,None,4,36,Webster,2019,2019-20,DEF
+Neal Maupay,Brighton,115382,4,Neal,502,Maupay,None,4,36,Maupay,2019,2019-20,FWD
+Aaron Mooy,Brighton,74471,3,Aaron,516,Mooy,None,4,36,Mooy,2019,2019-20,MID
 Ben Mee,Burnley,51927,2,Ben,83,Mee,None,5,90,Mee,2019,2019-20,DEF
 James Tarkowski,Burnley,17761,2,James,84,Tarkowski,None,5,90,Tarkowski,2019,2019-20,DEF
 Matthew Lowton,Burnley,68983,2,Matthew,85,Lowton,None,5,90,Lowton,2019,2019-20,DEF
@@ -2055,7 +2075,6 @@ Ashley Barnes,Burnley,44699,4,Ashley,90,Barnes,None,5,90,Barnes,2019,2019-20,FWD
 Chris Wood,Burnley,60689,4,Chris,91,Wood,None,5,90,Wood,2019,2019-20,FWD
 Matej Vydra,Burnley,81183,4,Matej,92,Vydra,None,5,90,Vydra,2019,2019-20,FWD
 Nick Pope,Burnley,98747,1,Nick,93,Pope,None,5,90,Pope,2019,2019-20,GK
-Tom Heaton,Burnley,21205,1,Tom,94,Heaton,None,5,90,Heaton,2019,2019-20,GK
 Joe Hart,Burnley,15749,1,Joe,95,Hart,None,5,90,Hart,2019,2019-20,GK
 Johann Berg Gudmundsson,Burnley,60586,3,Johann Berg,96,Gudmundsson,None,5,90,Gudmundsson,2019,2019-20,MID
 Dwight McNeil,Burnley,433154,3,Dwight,97,McNeil,None,5,90,McNeil,2019,2019-20,MID
@@ -2064,13 +2083,14 @@ Steven Defour,Burnley,39847,3,Steven,99,Defour,None,5,90,Defour,2019,2019-20,MID
 Jeff Hendrick,Burnley,83314,3,Jeff,100,Hendrick,None,5,90,Hendrick,2019,2019-20,MID
 Ashley Westwood,Burnley,60551,3,Ashley,101,Westwood,None,5,90,Westwood,2019,2019-20,MID
 Jack Cork,Burnley,40145,3,Jack,102,Cork,None,5,90,Cork,2019,2019-20,MID
+Daniel Drinkwater,Burnley,61603,3,Daniel,120,Drinkwater,None,5,90,Drinkwater,2019,2019-20,MID
 Aaron Lennon,Burnley,17349,3,Aaron,430,Lennon,None,5,90,Lennon,2019,2019-20,MID
 Erik Pieters,Burnley,39487,2,Erik,447,Pieters,None,5,90,Pieters,2019,2019-20,DEF
 Jay Rodriguez,Burnley,44683,4,Jay,451,Rodriguez,None,5,90,Rodriguez,2019,2019-20,FWD
+Bailey Peacock-Farrell,Burnley,220037,1,Bailey,495,Peacock-Farrell,None,5,90,Peacock-Farrell,2019,2019-20,GK
 Marcos Alonso,Chelsea,82263,2,Marcos,103,Alonso,None,6,8,Alonso,2019,2019-20,DEF
 Antonio Rüdiger,Chelsea,102380,2,Antonio,104,Rüdiger,None,6,8,Rüdiger,2019,2019-20,DEF
 César Azpilicueta,Chelsea,41328,2,César,105,Azpilicueta,None,6,8,Azpilicueta,2019,2019-20,DEF
-David Luiz Moreira Marinho,Chelsea,41270,2,David,106,Luiz Moreira Marinho,None,6,8,David Luiz,2019,2019-20,DEF
 Emerson Palmieri dos Santos,Chelsea,109533,2,Emerson,107,Palmieri dos Santos,None,6,8,Emerson,2019,2019-20,DEF
 Andreas Christensen,Chelsea,135363,2,Andreas,108,Christensen,None,6,8,Christensen,2019,2019-20,DEF
 Davide Zappacosta,Chelsea,105700,2,Davide,109,Zappacosta,None,6,8,Zappacosta,2019,2019-20,DEF
@@ -2084,10 +2104,16 @@ Callum Hudson-Odoi,Chelsea,209046,3,Callum,116,Hudson-Odoi,None,6,8,Hudson-Odoi,
 Ross Barkley,Chelsea,88894,3,Ross,117,Barkley,None,6,8,Barkley,2019,2019-20,MID
 Jorge Luiz Frello Filho,Chelsea,85955,3,Jorge Luiz,118,Frello Filho,None,6,8,Jorginho,2019,2019-20,MID
 N'Golo Kanté,Chelsea,116594,3,N'Golo,119,Kanté,None,6,8,Kanté,2019,2019-20,MID
-Daniel Drinkwater,Chelsea,61603,3,Daniel,120,Drinkwater,None,6,8,Drinkwater,2019,2019-20,MID
 Ethan Ampadu,Chelsea,199598,3,Ethan,121,Ampadu,None,6,8,Ampadu,2019,2019-20,MID
 Christian Pulisic,Chelsea,176413,3,Christian,431,Pulisic,None,6,8,Pulisic,2019,2019-20,MID
 Mateo Kovacic,Chelsea,91651,3,Mateo,432,Kovacic,None,6,8,Kovacic,2019,2019-20,MID
+Kurt Zouma,Chelsea,103192,2,Kurt,459,Zouma,None,6,8,Zouma,2019,2019-20,DEF
+Tammy Abraham,Chelsea,173879,4,Tammy,460,Abraham,None,6,8,Abraham,2019,2019-20,FWD
+Michy Batshuayi,Chelsea,94245,4,Michy,461,Batshuayi,None,6,8,Batshuayi,2019,2019-20,FWD
+Robert Kenedy Nunes do Nascimento,Chelsea,167767,3,Robert Kenedy,462,Nunes do Nascimento,None,6,8,Kenedy,2019,2019-20,MID
+Mason Mount,Chelsea,184341,3,Mason,463,Mount,None,6,8,Mount,2019,2019-20,MID
+Reece James,Chelsea,225796,2,Reece,506,James,None,6,8,James,2019,2019-20,DEF
+Fikayo Tomori,Chelsea,194794,2,Fikayo,529,Tomori,None,6,8,Tomori,2019,2019-20,DEF
 Patrick van Aanholt,Crystal Palace,74230,2,Patrick,123,van Aanholt,None,7,31,van Aanholt,2019,2019-20,DEF
 James Tomkins,Crystal Palace,49413,2,James,124,Tomkins,None,7,31,Tomkins,2019,2019-20,DEF
 Mamadou Sakho,Crystal Palace,40784,2,Mamadou,125,Sakho,None,7,31,Sakho,2019,2019-20,DEF
@@ -2106,6 +2132,11 @@ Jeffrey Schlupp,Crystal Palace,86417,3,Jeffrey,137,Schlupp,None,7,31,Schlupp,201
 James McArthur,Crystal Palace,50471,3,James,138,McArthur,None,7,31,McArthur,2019,2019-20,MID
 Cheikhou Kouyaté,Crystal Palace,55037,3,Cheikhou,139,Kouyaté,None,7,31,Kouyaté,2019,2019-20,MID
 Luke Dreher,Crystal Palace,221275,3,Luke,140,Dreher,None,7,31,Dreher,2019,2019-20,MID
+James McCarthy,Crystal Palace,50472,3,James,157,McCarthy,None,7,31,McCarthy,2019,2019-20,MID
+Jordan Ayew,Crystal Palace,80146,4,Jordan,468,Ayew,None,7,31,Ayew,2019,2019-20,FWD
+Gary Cahill,Crystal Palace,19419,2,Gary,503,Cahill,None,7,31,Cahill,2019,2019-20,DEF
+Víctor Camarasa,Crystal Palace,175946,3,Víctor,510,Camarasa,None,7,31,Camarasa,2019,2019-20,MID
+Alex Iwobi,Everton,153133,3,Alex,17,Iwobi,None,8,11,Iwobi,2019,2019-20,MID
 Lucas Digne,Everton,101188,2,Lucas,141,Digne,None,8,11,Digne,2019,2019-20,DEF
 Yerry Mina,Everton,164511,2,Yerry,142,Mina,None,8,11,Mina,2019,2019-20,DEF
 Michael Keane,Everton,106611,2,Michael,143,Keane,None,8,11,Keane,2019,2019-20,DEF
@@ -2122,12 +2153,16 @@ Theo Walcott,Everton,20467,3,Theo,153,Walcott,None,8,11,Walcott,2019,2019-20,MID
 Tom Davies,Everton,173807,3,Tom,154,Davies,None,8,11,Davies,2019,2019-20,MID
 Ademola Lookman,Everton,219352,3,Ademola,155,Lookman,None,8,11,Lookman,2019,2019-20,MID
 Idrissa Gueye,Everton,80801,3,Idrissa,156,Gueye,None,8,11,Gueye,2019,2019-20,MID
-James McCarthy,Everton,50472,3,James,157,McCarthy,None,8,11,McCarthy,2019,2019-20,MID
 Morgan Schneiderlin,Everton,42774,3,Morgan,158,Schneiderlin,None,8,11,Schneiderlin,2019,2019-20,MID
 Fabian Delph,Everton,41823,2,Fabian,205,Delph,None,8,11,Delph,2019,2019-20,DEF
 André Filipe Tavares Gomes,Everton,120250,3,André Filipe,422,Tavares Gomes,None,8,11,André Gomes,2019,2019-20,MID
+Lewis Gibson,Everton,232964,2,Lewis,477,Gibson,None,8,11,Gibson,2019,2019-20,DEF
+Mason Holgate,Everton,194164,2,Mason,478,Holgate,None,8,11,Holgate,2019,2019-20,DEF
+Jonas Lössl,Everton,57513,1,Jonas,479,Lössl,None,8,11,Lössl,2019,2019-20,GK
+Moise Kean,Everton,242058,4,Moise,496,Kean,None,8,11,Kean,2019,2019-20,FWD
+Jean-Philippe Gbamin,Everton,160987,3,Jean-Philippe,497,Gbamin,None,8,11,Gbamin,2019,2019-20,MID
+Djibril Sidibé,Everton,102747,2,Djibril,511,Sidibé,None,8,11,Sidibé,2019,2019-20,DEF
 Ricardo Domingos Barbosa Pereira,Leicester,111931,2,Ricardo Domingos,159,Barbosa Pereira,None,9,13,Pereira,2019,2019-20,DEF
-Harry Maguire,Leicester,95658,2,Harry,160,Maguire,None,9,13,Maguire,2019,2019-20,DEF
 Benjamin Chilwell,Leicester,172850,2,Benjamin,161,Chilwell,None,9,13,Chilwell,2019,2019-20,DEF
 Jonny Evans,Leicester,37642,2,Jonny,162,Evans,None,9,13,Evans,2019,2019-20,DEF
 Christian Fuchs,Leicester,37402,2,Christian,163,Fuchs,None,9,13,Fuchs,2019,2019-20,DEF
@@ -2151,6 +2186,8 @@ Hamza Choudhury,Leicester,197469,3,Hamza,180,Choudhury,None,9,13,Choudhury,2019,
 Ayoze Pérez,Leicester,168580,3,Ayoze,265,Pérez,None,9,13,Pérez,2019,2019-20,MID
 James Justin,Leicester,220627,2,James,433,Justin,None,9,13,Justin,2019,2019-20,DEF
 Youri Tielemans,Leicester,166989,3,Youri,448,Tielemans,None,9,13,Tielemans,2019,2019-20,MID
+Andy King,Leicester,13152,3,Andy,480,King,None,9,13,King,2019,2019-20,MID
+Dennis Praet,Leicester,106837,3,Dennis,517,Praet,None,9,13,Praet,2019,2019-20,MID
 Andrew Robertson,Liverpool,122798,2,Andrew,181,Robertson,None,10,14,Robertson,2019,2019-20,DEF
 Trent Alexander-Arnold,Liverpool,169187,2,Trent,182,Alexander-Arnold,None,10,14,Alexander-Arnold,2019,2019-20,DEF
 Virgil van Dijk,Liverpool,97032,2,Virgil,183,van Dijk,None,10,14,van Dijk,2019,2019-20,DEF
@@ -2172,6 +2209,8 @@ Jordan Henderson,Liverpool,56979,3,Jordan,198,Henderson,None,10,14,Henderson,201
 Georginio Wijnaldum,Liverpool,41733,3,Georginio,199,Wijnaldum,None,10,14,Wijnaldum,2019,2019-20,MID
 James Milner,Liverpool,15157,3,James,200,Milner,None,10,14,Milner,2019,2019-20,MID
 Rafael Camacho,Liverpool,217989,3,Rafael,201,Camacho,None,10,14,Camacho,2019,2019-20,MID
+Rhian Brewster,Liverpool,195473,4,Rhian,464,Brewster,None,10,14,Brewster,2019,2019-20,FWD
+Adrián San Miguel del Castillo,Liverpool,60706,1,Adrián,526,San Miguel del Castillo,None,10,14,Adrián,2019,2019-20,GK
 Aymeric Laporte,Man City,146941,2,Aymeric,202,Laporte,None,11,43,Laporte,2019,2019-20,DEF
 Kyle Walker,Man City,58621,2,Kyle,203,Walker,None,11,43,Walker,2019,2019-20,DEF
 Benjamin Mendy,Man City,102826,2,Benjamin,204,Mendy,None,11,43,Mendy,2019,2019-20,DEF
@@ -2194,7 +2233,9 @@ Fernando Luiz Rosa,Man City,27789,3,Fernando,221,Luiz Rosa,None,11,43,Fernandinh
 Ilkay Gündogan,Man City,59859,3,Ilkay,222,Gündogan,None,11,43,Gündogan,2019,2019-20,MID
 José Ángel Esmorís Tasende,Man City,145235,2,José Ángel,440,Esmorís Tasende,None,11,43,Angeliño,2019,2019-20,DEF
 Rodrigo Hernandez,Man City,220566,3,Rodrigo,443,Hernandez,None,11,43,Rodrigo,2019,2019-20,MID
+João Pedro Cavaco Cancelo,Man City,121145,2,João Pedro Cavaco,518,Cancelo,None,11,43,Cancelo,2019,2019-20,DEF
 Aaron Wan-Bissaka,Man Utd,214590,2,Aaron,122,Wan-Bissaka,None,12,1,Wan-Bissaka,2019,2019-20,DEF
+Harry Maguire,Man Utd,95658,2,Harry,160,Maguire,None,12,1,Maguire,2019,2019-20,DEF
 Chris Smalling,Man Utd,55909,2,Chris,223,Smalling,None,12,1,Smalling,2019,2019-20,DEF
 Ashley Young,Man Utd,18892,2,Ashley,224,Young,None,12,1,Young,2019,2019-20,DEF
 Victor Lindelöf,Man Utd,184667,2,Victor,225,Lindelöf,None,12,1,Lindelöf,2019,2019-20,DEF
@@ -2223,6 +2264,7 @@ Nemanja Matic,Man Utd,62398,3,Nemanja,247,Matic,None,12,1,Matic,2019,2019-20,MID
 Scott McTominay,Man Utd,195851,3,Scott,248,McTominay,None,12,1,McTominay,2019,2019-20,MID
 Tahith Chong,Man Utd,222677,3,Tahith,249,Chong,None,12,1,Chong,2019,2019-20,MID
 James Garner,Man Utd,232928,3,James,250,Garner,None,12,1,Garner,2019,2019-20,MID
+Axel Tuanzebe,Man Utd,180804,2,Axel,481,Tuanzebe,None,12,1,Tuanzebe,2019,2019-20,DEF
 Matt Ritchie,Newcastle,56983,2,Matt,251,Ritchie,None,13,4,Ritchie,2019,2019-20,DEF
 Fabian Schär,Newcastle,119471,2,Fabian,252,Schär,None,13,4,Schär,2019,2019-20,DEF
 DeAndre Yedlin,Newcastle,151119,2,DeAndre,253,Yedlin,None,13,4,Yedlin,2019,2019-20,DEF
@@ -2243,6 +2285,14 @@ Sung-yueng Ki,Newcastle,76542,3,Sung-yueng,268,Ki,None,13,4,Ki Sung-yueng,2019,2
 Jonjo Shelvey,Newcastle,50232,3,Jonjo,269,Shelvey,None,13,4,Shelvey,2019,2019-20,MID
 Sean Longstaff,Newcastle,180135,3,Sean,270,Longstaff,None,13,4,Longstaff,2019,2019-20,MID
 Isaac Hayden,Newcastle,153127,3,Isaac,271,Hayden,None,13,4,Hayden,2019,2019-20,MID
+Joelinton Cássio Apolinário de Lira,Newcastle,180974,4,Joelinton Cássio,466,Apolinário de Lira,None,13,4,Joelinton,2019,2019-20,FWD
+Jack Colback,Newcastle,58771,3,Jack,482,Colback,None,13,4,Colback,2019,2019-20,MID
+Jacob Murphy,Newcastle,114243,3,Jacob,483,Murphy,None,13,4,Murphy,2019,2019-20,MID
+Jetro Willems,Newcastle,92159,2,Jetro,498,Willems,None,13,4,Willems,2019,2019-20,DEF
+Rolando Aarons,Newcastle,155513,3,Rolando,499,Aarons,None,13,4,Aarons,2019,2019-20,MID
+Allan Saint-Maximin,Newcastle,170137,3,Allan,500,Saint-Maximin,None,13,4,Saint-Maximin,2019,2019-20,MID
+Emil Krafth,Newcastle,111773,2,Emil,519,Krafth,None,13,4,Krafth,2019,2019-20,DEF
+Andy Carroll,Newcastle,40142,4,Andy,520,Carroll,None,13,4,Carroll,2019,2019-20,FWD
 Timm Klose,Norwich,84384,2,Timm,272,Klose,None,14,45,Klose,2019,2019-20,DEF
 Ben Godfrey,Norwich,198826,2,Ben,273,Godfrey,None,14,45,Godfrey,2019,2019-20,DEF
 Maximillian Aarons,Norwich,232980,2,Maximillian,274,Aarons,None,14,45,Aarons,2019,2019-20,DEF
@@ -2266,6 +2316,9 @@ Josip Drmic,Norwich,81048,4,Josip,434,Drmic,None,14,45,Drmic,2019,2019-20,FWD
 Patrick Roberts,Norwich,124165,3,Patrick,435,Roberts,None,14,45,Roberts,2019,2019-20,MID
 Ralf Fahrmann,Norwich,28082,1,Ralf,449,Fahrmann,None,14,45,Fahrmann,2019,2019-20,GK
 Sam Byram,Norwich,113564,2,Sam,454,Byram,None,14,45,Byram,2019,2019-20,DEF
+Philip Heise,Norwich,101061,2,Philip,484,Heise,None,14,45,Heise,2019,2019-20,DEF
+Ibrahim Amadou,Norwich,128348,3,Ibrahim,507,Amadou,None,14,45,Amadou,2019,2019-20,MID
+Lys Mousset,Sheffield Utd,178304,4,Lys,70,Mousset,None,15,49,Mousset,2019,2019-20,FWD
 Enda Stevens,Sheffield Utd,63426,2,Enda,291,Stevens,None,15,49,Stevens,2019,2019-20,DEF
 Kieron Freeman,Sheffield Utd,87121,2,Kieron,292,Freeman,None,15,49,Freeman,2019,2019-20,DEF
 Jack O'Connell,Sheffield Utd,146610,2,Jack,293,O'Connell,None,15,49,O'Connell,2019,2019-20,DEF
@@ -2285,6 +2338,11 @@ Luke Freeman,Sheffield Utd,49083,3,Luke,441,Freeman,None,15,49,Freeman,2019,2019
 Phil Jagielka,Sheffield Utd,7645,2,Phil,444,Jagielka,None,15,49,Jagielka,2019,2019-20,DEF
 Callum Robinson,Sheffield Utd,171975,3,Callum,453,Robinson,None,15,49,Robinson,2019,2019-20,MID
 Ravel Morrison,Sheffield Utd,90518,3,Ravel,456,Morrison,None,15,49,Morrison,2019,2019-20,MID
+Dean Henderson,Sheffield Utd,172649,1,Dean,471,Henderson,None,15,49,Henderson,2019,2019-20,GK
+Ben Osborn,Sheffield Utd,167878,3,Ben,472,Osborn,None,15,49,Osborn,2019,2019-20,MID
+Oliver McBurnie,Sheffield Utd,169432,4,Oliver,501,McBurnie,None,15,49,McBurnie,2019,2019-20,FWD
+Michael Verrips,Sheffield Utd,194126,1,Michael,521,Verrips,None,15,49,Verrips,2019,2019-20,GK
+Muhamed Bešić,Sheffield Utd,87447,3,Muhamed,522,Bešić,None,15,49,Bešić,2019,2019-20,MID
 Jannik Vestergaard,Southampton,93100,2,Jannik,304,Vestergaard,None,16,20,Vestergaard,2019,2019-20,DEF
 Ryan Bertrand,Southampton,40146,2,Ryan,305,Bertrand,None,16,20,Bertrand,2019,2019-20,DEF
 Yan Valery,Southampton,213482,2,Yan,306,Valery,None,16,20,Valery,2019,2019-20,DEF
@@ -2311,6 +2369,9 @@ Callum Slattery,Southampton,193109,3,Callum,327,Slattery,None,16,20,Slattery,201
 Oriol Romeu Vidal,Southampton,78056,3,Oriol,328,Romeu Vidal,None,16,20,Oriol Romeu,2019,2019-20,MID
 Che Adams,Southampton,200439,4,Che,437,Adams,None,16,20,Adams,2019,2019-20,FWD
 Moussa Djenepo,Southampton,431131,3,Moussa,438,Djenepo,None,16,20,Djenepo,2019,2019-20,MID
+Wesley Hoedt,Southampton,167075,2,Wesley,485,Hoedt,None,16,20,Hoedt,2019,2019-20,DEF
+Cédric Soares,Southampton,58822,2,Cédric,486,Soares,None,16,20,Cédric,2019,2019-20,DEF
+Sofiane Boufal,Southampton,128198,3,Sofiane,508,Boufal,None,16,20,Boufal,2019,2019-20,MID
 Ben Davies,Spurs,115556,2,Ben,329,Davies,None,17,6,Davies,2019,2019-20,DEF
 Jan Vertonghen,Spurs,39194,2,Jan,330,Vertonghen,None,17,6,Vertonghen,2019,2019-20,DEF
 Toby Alderweireld,Spurs,55605,2,Toby,331,Alderweireld,None,17,6,Alderweireld,2019,2019-20,DEF
@@ -2336,6 +2397,10 @@ Eric Dier,Spurs,93264,3,Eric,350,Dier,None,17,6,Dier,2019,2019-20,MID
 Luke Amos,Spurs,168764,3,Luke,351,Amos,None,17,6,Amos,2019,2019-20,MID
 Oliver Skipp,Spurs,209042,3,Oliver,352,Skipp,None,17,6,Skipp,2019,2019-20,MID
 Tanguy Ndombele,Spurs,231372,3,Tanguy,442,Ndombele,None,17,6,Ndombele,2019,2019-20,MID
+Troy Parrott,Spurs,447235,4,Troy,509,Parrott,None,17,6,Parrott,2019,2019-20,FWD
+Giovani Lo Celso,Spurs,200826,3,Giovani,523,Lo Celso,None,17,6,Lo Celso,2019,2019-20,MID
+Ryan Sessegnon,Spurs,184349,3,Ryan,524,Sessegnon,None,17,6,Sessegnon,2019,2019-20,MID
+Georges-Kévin Nkoudou,Spurs,168566,3,Georges-Kévin,527,Nkoudou,None,17,6,Nkoudou,2019,2019-20,MID
 José Holebas,Watford,40868,2,José,353,Holebas,None,18,57,Holebas,2019,2019-20,DEF
 Christian Kabasele,Watford,85624,2,Christian,354,Kabasele,None,18,57,Kabasele,2019,2019-20,DEF
 Adam Masina,Watford,155651,2,Adam,355,Masina,None,18,57,Masina,2019,2019-20,DEF
@@ -2360,6 +2425,9 @@ Etienne Capoue,Watford,38439,3,Etienne,373,Capoue,None,18,57,Capoue,2019,2019-20
 Nathaniel Chalobah,Watford,89085,3,Nathaniel,374,Chalobah,None,18,57,Chalobah,2019,2019-20,MID
 Domingos Quina,Watford,216058,3,Domingos,375,Quina,None,18,57,Quina,2019,2019-20,MID
 Craig Dawson,Watford,60232,2,Craig,439,Dawson,None,18,57,Dawson,2019,2019-20,DEF
+Danny Welbeck,Watford,50175,4,Danny,512,Welbeck,None,18,57,Welbeck,2019,2019-20,FWD
+Heurelho da Silva Gomes,Watford,18656,1,Heurelho da Silva,513,Gomes,None,18,57,Gomes,2019,2019-20,GK
+Ismaïla Sarr,Watford,232185,3,Ismaïla,525,Sarr,None,18,57,Sarr,2019,2019-20,MID
 Aaron Cresswell,West Ham,55459,2,Aaron,376,Cresswell,None,19,21,Cresswell,2019,2019-20,DEF
 Angelo Ogbonna,West Ham,40669,2,Angelo,377,Ogbonna,None,19,21,Ogbonna,2019,2019-20,DEF
 Arthur Masuaku,West Ham,105717,2,Arthur,378,Masuaku,None,19,21,Masuaku,2019,2019-20,DEF
@@ -2387,6 +2455,7 @@ Pablo Fornals,West Ham,217593,3,Pablo,399,Fornals,None,19,21,Fornals,2019,2019-2
 Pedro Obiang,West Ham,59779,3,Pedro,400,Obiang,None,19,21,Obiang,2019,2019-20,MID
 Roberto Jimenez Gago,West Ham,40694,1,Roberto,450,Jimenez Gago,None,19,21,Roberto,2019,2019-20,GK
 Sébastien Haller,West Ham,103123,4,Sébastien,457,Haller,None,19,21,Haller,2019,2019-20,FWD
+Albian Ajeti,West Ham,181008,4,Albian,514,Ajeti,None,19,21,Ajeti,2019,2019-20,FWD
 Matt Doherty,Wolves,87835,2,Matt,401,Doherty,None,20,39,Doherty,2019,2019-20,DEF
 Jonathan Castro Otto,Wolves,114128,2,Jonathan,402,Castro Otto,None,20,39,Jonny,2019,2019-20,DEF
 Conor Coady,Wolves,94147,2,Conor,403,Coady,None,20,39,Coady,2019,2019-20,DEF
@@ -2407,3 +2476,6 @@ Adama Traoré,Wolves,159533,3,Adama,417,Traoré,None,20,39,Traoré,2019,2019-20,
 Hélder Costa,Wolves,165808,3,Hélder,418,Costa,None,20,39,Costa,2019,2019-20,MID
 Ivan Cavaleiro,Wolves,166324,3,Ivan,419,Cavaleiro,None,20,39,Cavaleiro,2019,2019-20,MID
 Leander Dendoncker,Wolves,151589,3,Leander,420,Dendoncker,None,20,39,Dendoncker,2019,2019-20,MID
+Jesús Vallejo Lázaro,Wolves,178876,2,Jesús,473,Vallejo Lázaro,None,20,39,Vallejo,2019,2019-20,DEF
+Patrick Cutrone,Wolves,209353,4,Patrick,487,Cutrone,None,20,39,Cutrone,2019,2019-20,FWD
+Pedro Lomba Neto,Wolves,247632,3,Pedro,528,Lomba Neto,None,20,39,Neto,2019,2019-20,MID

@@ -1,3 +1,5 @@
+
+import numpy as np
 import pandas as pd
 import requests
 import warnings
@@ -35,3 +37,17 @@ class ApiData:
         df = self.elements.copy()
         df["name"] = df["first_name"].str.cat(df["second_name"], sep=" ")
         return dict(zip(df["id"], df["name"]))
+
+    @property
+    def current_values(self):
+        return dict(zip(self.elements["code"], self.elements["now_cost"]))
+
+    def players_available(self, percent_chance=100):
+        """Return list of player codes available, either NaN or with chance
+        greater or equal than `percent_chance`."""
+        df = self.elements[["code", "chance_of_playing_next_round"]].copy()
+        df["available"] = np.where(df["chance_of_playing_next_round"] < percent_chance, "False", np.nan)
+        df["available"] = df["available"].replace("False", False)
+        df["available"] = df["available"].replace("nan", True)
+        return dict(zip(df["code"], df["available"]))
+

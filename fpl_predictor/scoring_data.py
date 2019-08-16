@@ -16,6 +16,7 @@ class ScoringData:
             agg_col (str): the column of gameweek data to use to score players
                 to create their ranking. This effectively picks your team.
         """
+        self._dl = dl
         self.__master = dl.master
         self.__players_master = dl.players_master
         self._player_value_ix = self.index_players(column="value")
@@ -73,13 +74,22 @@ class ScoringData:
     def get_player_values(self, year, week):
         """Get all player values in the given year and week."""
         ix = self._player_value_ix.copy()
-        values = ix.loc[(year, week), :]
+        try:
+            values = ix.loc[(year, week), :]
+        except KeyError:
+            print("No historic values found for week, returning current API `now_cost`.")
+            return self._dl.current_values
         return values.to_dict()
 
     def get_players_available(self, year, week):
         """Get all players who were available in the given year and week."""
-        s = self._player_minutes_ix.loc[(year, week), :]
-        return (s > 0).to_dict()
+        ix = self._player_minutes_ix.copy()
+        try:
+            s = ix.loc[(year, week), :]
+            return (s > 0).to_dict()
+        except KeyError:
+            print("No historic availability found for week, returning current API data.")
+            return self._dl.api_data.players_available()
 
     @property
     def _index_player_availability(self):
@@ -135,6 +145,7 @@ class ScoringData:
         df["minutes_percent"] = df.index.map(minutes_percent)
         next_y, next_w = next_week(year, week)
         df["available"] = df.index.map(self.get_players_available(next_y, next_w))
+        df["available"] = df["available"].fillna(False)
         df["name"] = df.index.map(self.__player_names)
         df["team"] = df.index.map(self.__year_player_team[year])
         return df

@@ -96,6 +96,38 @@ class Optimized(TeamBuilder):
         print("Unable to increase score.")
         return None
 
+    def get_current_team_optimisations(self):
+        """Get a DataFrame of all possible optimisations for the current team.
+        Note that not all optimisations returned are possible, as the 3-ballers-
+        per-team limit may be met by already selected players."""
+        df = pd.DataFrame()
+        codes = sorted(self.team.sqaud["code"])
+        team_perms = self.make_player_perms(*codes, r=self.r)
+        team_perms.sort_values(by=["score_total", "value_total"], ascending=[True, False], inplace=True)
+        team_perms.reset_index(drop=True, inplace=True)
+        av_budget = self.team.available_budget
+
+        for row_i in team_perms.iterrows():
+            remove_players = row_i[1].to_dict()
+            ballers_to_remove = remove_players["ballers"]
+            budget = av_budget + remove_players["value_total"]
+            better_perms = self.subset_all_perms(remove_players["position"],
+                                                 remove_players["score_total"],
+                                                 budget)
+            better_perms = better_perms.loc[better_perms["ballers"] != ballers_to_remove]
+            if len(better_perms):
+                s = better_perms.iloc[0].to_dict()
+                s["ballers_to_remove"] = ballers_to_remove
+                s["to_remove_value_total"] = remove_players["value_total"]
+                s["to_remove_score_total"] = remove_players["score_total"]
+                df = df.append(s, ignore_index=True)
+        df = df[["position", "ballers", "score_total", "value_total",
+                 "ballers_to_remove", "to_remove_score_total", "to_remove_value_total"]]
+        df["value_diff"] = df["value_total"] - df["to_remove_value_total"]
+        df["score_diff"] = df["score_total"] - df["to_remove_score_total"]
+        df.sort_values(by=["score_diff", "value_diff"], ascending=[False, True], inplace=True)
+        return df.reset_index(drop=True)
+
     def run(self):
         while True:
             o = self.optimize()
