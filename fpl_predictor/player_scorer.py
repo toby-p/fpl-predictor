@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 from fpl_predictor.functions import index_players, aggregate_index
-from fpl_predictor.player_information import PlayerInformation
 from nav import DIR_STRUCTURED_DATA
 
 
@@ -19,14 +18,15 @@ class PlayerScorer:
             metric (str): column of gameweek data to score players on.
         """
         fp = os.path.join(DIR_STRUCTURED_DATA, "master.csv")
-        self.__master = pd.read_csv(fp, encoding="utf-8")
-        self.__metric = metric
+        self._master = pd.read_csv(fp, encoding="utf-8")
+        assert metric in self._master.columns, f"Invalid scoring metric: {metric}"
+        self._metric = metric
 
         # Index the players based on score on the `metric`:
-        self._ix_score = index_players(self.__master, column=metric)
+        self._ix_score = index_players(self._master, column=metric)
 
         # Index players by how many minutes they played:
-        self._ix_player_minutes = index_players(self.__master, column="minutes")
+        self._ix_player_minutes = index_players(self._master, column="minutes")
 
     def __player_minutes_percent(self, year, week, n, cross_seasons=False):
         """Calculate the percent of total minutes that each player played in the
@@ -50,7 +50,7 @@ class PlayerScorer:
         of this class instance."""
         df = aggregate_index(self._ix_score, year, week, n,
                              agg_func=agg_func, cross_seasons=cross_seasons)
-        df = pd.DataFrame(data=df, columns=[self.__metric])
+        df = pd.DataFrame(data=df, columns=[self._metric])
         df.reset_index(inplace=True)
         mins = self.__player_minutes_percent(year, week, n, cross_seasons=cross_seasons)
         df["minutes_percent"] = df["code"].map(mins)

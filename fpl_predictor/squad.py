@@ -81,7 +81,9 @@ class Squad:
             raise AlreadySelected(new_player)
         if team in self.maxed_out_teams:
             raise MaxedOutTeam(new_player)
-        self.selected = self.selected.append(new_player, ignore_index=True).reset_index(drop=True)
+        self.selected = self.selected.append(new_player, ignore_index=True)
+        self.selected.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
+        self.selected.reset_index(drop=True, inplace=True)
 
     def remove_player(self, code):
         if code not in list(self.selected["code"]):
@@ -128,3 +130,68 @@ class Squad:
         df = pd.read_csv(fp, encoding="utf-8")
         self.selected = df
         print(f"Squad of {len(self.selected)} players loaded from {fp}")
+
+    @property
+    def first_team(self):
+        if not self.squad_full:
+            print("Squad not full, can't pick first team.")
+            return
+        df = self.selected
+        df.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
+        max_picks = {"GK": 1, "DEF": 5, "MID": 5, "FWD": 3}
+        picked = {"GK": 0, "DEF": 0, "MID": 0, "FWD": 0}
+        first_team = pd.DataFrame()
+        for row in df.iterrows():
+            player = row[1].to_dict()
+            if picked[player["position"]] < max_picks[player["position"]]:
+                first_team = first_team.append(player, ignore_index=True)
+                picked[player["position"]] += 1
+            # Can't have 5 midfielders AND 5 defenders:
+            if picked["DEF"] == 5:
+                max_picks["MID"] = 4
+            if picked["MID"] == 5:
+                max_picks["DEF"] = 4
+        return first_team
+
+    @property
+    def total_first_team_score(self):
+        if not self.squad_full:
+            print("Squad not full.")
+            return
+        return self.first_team["score"].sum()
+
+    @property
+    def total_first_team_score_per_val(self):
+        if not self.squad_full:
+            print("Squad not full.")
+            return
+        return self.first_team["score_per_value"].sum()
+
+    @property
+    def total_first_team_value(self):
+        if not self.squad_full:
+            print("Squad not full.")
+            return
+        return self.first_team["value"].sum()
+
+    @property
+    def captain(self):
+        if not self.squad_full:
+            print("Squad not full, can't pick captain.")
+            return
+        else:
+            df = self.selected
+            df.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
+            captain = df.iloc[0]
+        return {captain["code"]: captain["name"]}
+
+    @property
+    def vice_captain(self):
+        if not self.squad_full:
+            print("Squad not full, can't pick vice-captain.")
+            return
+        else:
+            df = self.selected
+            df.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
+            vc = df.iloc[1]
+        return {vc["code"]: vc["name"]}
