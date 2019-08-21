@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 from fpl_predictor.api import ApiData
+from fpl_predictor.functions import index_players
 from nav import DIR_STRUCTURED_DATA, DIR_STATIC
 
 
@@ -102,3 +103,12 @@ class PlayerInformation:
         week. Can only query historical data."""
         df = self._master_year_week(year, week)
         return dict(zip(df["code"], df["total_points"]))
+
+    def minutes_played(self, year: int = None, week: int = None):
+        """Dictionary of player codes to minutes played in the given year-week.
+        """
+        df = index_players(self._master, column="minutes")
+        return df.loc[(year, week), :].to_dict()
+
+
+

@@ -69,6 +69,11 @@ class Squad:
     def selected_list(self):
         return sorted(self.selected["code"])
 
+    @property
+    def substitutes(self):
+        df = self.selected.loc[~self.selected["code"].isin(list(self.first_team["code"]))]
+        return df.reset_index(drop=True)
+
     def add_player(self, code: str, name: str, position: str, value: float,
                    score: float, score_per_value: float, team: str, **kwargs):
         new_player = {"code": code, "name": name, "position": position, "team": team,
@@ -142,6 +147,8 @@ class Squad:
         picked = {"GK": 0, "DEF": 0, "MID": 0, "FWD": 0}
         first_team = pd.DataFrame()
         for row in df.iterrows():
+            if len(first_team) == 11:
+                break
             player = row[1].to_dict()
             if picked[player["position"]] < max_picks[player["position"]]:
                 first_team = first_team.append(player, ignore_index=True)

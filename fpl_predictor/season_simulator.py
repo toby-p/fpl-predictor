@@ -1,22 +1,23 @@
 
 import pandas as pd
 
-from __deprecated__.dataloader import DataLoader
-from __deprecated__.teambuilder import TeamBuilder
+from fpl_predictor.player_information import PlayerInformation
+from fpl_predictor.squad_builder import SquadBuilder
 
 
 class SeasonSimulator:
 
-    def __init__(self, year, strategy):
+    def __init__(self, year, week, builder):
+        self.squad_builder = SquadBuilder()
+        self._player_information = PlayerInformation()
+        self.week = week
         self.year = year
-        self.strategy = strategy
-        self.dataloader = DataLoader(make_master=False, build_player_db=False)
+        self.builder = builder
         self.transfers = pd.DataFrame()
         self.team_points = pd.DataFrame()
-        self.current_team = TeamBuilder(year, 1)
-        self.new_team = TeamBuilder(year, 1)
 
     def simulate(self, verbose=True):
+        self._current_squad = self.builder(self.squad_builder, year=self.year, week=self.week)
         self.transfers = pd.DataFrame(columns=["GW", "out", "in"])
         self.team_points = pd.DataFrame(columns=["GW", "total_points"])
         self.current_team = self.strategy.pick_first_gameweek_team(self.year)
@@ -59,9 +60,29 @@ class SeasonSimulator:
             n_transfers += 1
             n_transfers = 2 if n_transfers > 2 else n_transfers
 
-    def score_team(self, year, week, *uuids):
-        """Get the total score for the given players in the year-week gameweek.
-        """
-        df = self.dataloader.gw(year, week)
-        df = df.loc[df["uuid"].isin(uuids)]
-        return df["total_points"].sum()
+    def score_team(self):
+        """Get the total score for the current squad, year, week attributes."""
+        codes = sorted(self.squad_builder.squad.selected["code"])
+        points = self._player_information.points_scored(year=self.year, week=self.week)
+        points = {k: v for k, v in points.items() if k in codes}
+        minutes = self._player_information.minutes_played(self.year, self.week)
+        minutes = {k: v for k, v in minutes.items() if k in codes}
+
+        # Double captain/vice-captain's points if they played:
+        captain = list(self.squad_builder.squad.captain.keys())[0]
+        vice_captain = list(self.squad_builder.squad.vice_captain.keys())[0]
+        if minutes[captain] > 0:
+            points[captain] = points[captain] * 2
+        elif minutes[vice_captain] > 0:
+            points[vice_captain] = points[vice_captain] * 2
+
+        # Sub in substitutes who played over first-teamers who didn't:
+        subs = self.squad_builder.squad.substitutes
+        subs["minutes"] = subs["code"].map(minutes)
+        subs = subs.loc[subs["minutes"] > 0]
+        first_team = self.squad_builder.squad.first_team
+        first_team["minutes"] = first_team["code"].map(minutes)
+        first_team = first_team.loc[first_team["minutes"] == 0]
+        # TODO - Finish this logic.
+
+        return first_team
