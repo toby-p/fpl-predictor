@@ -66,7 +66,7 @@ class Squad:
         return 1000 - self.total_value
 
     @property
-    def _selected_list(self):
+    def selected_list(self):
         return sorted(self.selected["code"])
 
     def add_player(self, code: str, name: str, position: str, value: float,
@@ -77,7 +77,7 @@ class Squad:
             raise PositionFilled(new_player)
         if self.total_value + value > self.cap:
             raise NotEnoughMoney(new_player)
-        if code in self._selected_list:
+        if code in self.selected_list:
             raise AlreadySelected(new_player)
         if team in self.maxed_out_teams:
             raise MaxedOutTeam(new_player)

@@ -72,7 +72,7 @@ class TeamBuilder:
             df = df.loc[df["roi_score"] > min_roi]
         if isinstance(max_price, Number):
             df = df.loc[df["value"] <= max_price]
-        df = df.loc[~df.index.isin(self.team._selected_list)]
+        df = df.loc[~df.index.isin(self.team.selected_list)]
         if len(self.team.maxed_out_teams):
             df = df.loc[~df["team"].isin(self.team.maxed_out_teams)]
         return df

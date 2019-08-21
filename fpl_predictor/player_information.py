@@ -96,3 +96,9 @@ class PlayerInformation:
         df["team"] = df[code_col].map(self.player_teams(year=year, live=live))
         df["name"] = df[code_col].map(self.player_names(live=live))
         return df
+
+    def points_scored(self, year: int = None, week: int = None):
+        """Dictionary of player codes to total points they earnt in a given
+        week. Can only query historical data."""
+        df = self._master_year_week(year, week)
+        return dict(zip(df["code"], df["total_points"]))

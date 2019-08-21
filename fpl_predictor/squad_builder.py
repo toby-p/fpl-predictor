@@ -97,7 +97,7 @@ class SquadBuilder:
             df = df.loc[df["available"]]
 
         # Remove already selected players:
-        df = df.loc[~df.index.isin(self.squad._selected_list)]
+        df = df.loc[~df.index.isin(self.squad.selected_list)]
 
         # Remove players from teams already maxed out:
         if len(self.squad.maxed_out_teams):
@@ -130,28 +130,23 @@ class SquadBuilder:
     def squad(self):
         return self.__squad
 
+    def squad_unavailable(self, year, week, live=False, percent_chance=100):
+        """Identify members of the currently selected squad who are unavailable
+        for selection in the given game-week."""
+        availability = self.player_availability(year, week, live=live, percent_chance=percent_chance)
+        codes = self.squad.selected_list
+        return {k: v for k, v in availability.items() if k in codes and not v}
+
+    def first_team_unavailable(self, year, week, live=False, percent_chance=100):
+        """Identify members of the current first team who are unavailable for
+        selection in the given game-week."""
+        availability = self.player_availability(year, week, live=live, percent_chance=percent_chance)
+        codes = sorted(self.squad.first_team["code"])
+        return {k: v for k, v in availability.items() if k in codes and not v}
+
     @property
     def _test_new_squad(self):
         return Squad()
-
-    def evaluate_transfers(self, year, week, live=False):
-        """Evaluate transfers on the current team for the given year-week."""
-        transfers = pd.DataFrame()
-        available_budget = self.squad.available_budget
-        for row in self.squad.selected.iterrows():
-            player = row[1].to_dict()
-            pool = self._player_pool(year, week, live=live, position=player["position"], min_score=player["score"],
-                                     max_val=available_budget+player["value"])
-            if len(pool):
-                old_player = {f"out_{k}": v for k, v in player.items()}
-                transfer = self._select_player(pool)
-                transfer = {**old_player, **transfer}
-                transfers = transfers.append(transfer, ignore_index=True)
-        transfers["score_gain"] = transfers["score"] - transfers["out_score"]
-        transfers["score_per_val_gain"] = transfers["score_per_value"] - transfers["out_score_per_value"]
-        transfers["val_gain"] = transfers["out_value"] - transfers["value"]
-        transfers.sort_values(by=["score_gain", "score_per_val_gain"], ascending=False, inplace=True)
-        return transfers.reset_index(drop=True)
 
     def build_squad(self, build_function, year: int, week: int, live=False,
                     **kwargs):
@@ -164,3 +159,4 @@ class SquadBuilder:
         `optimise_function`, attempting to run the optimising function
         `n_iterations` times."""
         optimise_function(self, n_iterations, year, week, live, **kwargs)
+
