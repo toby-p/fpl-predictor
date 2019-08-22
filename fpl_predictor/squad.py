@@ -143,9 +143,16 @@ class Squad:
             return
         df = self.selected
         df.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
-        max_picks = {"GK": 1, "DEF": 5, "MID": 5, "FWD": 3}
-        picked = {"GK": 0, "DEF": 0, "MID": 0, "FWD": 0}
+
         first_team = pd.DataFrame()
+
+        # First pick a keeper:
+        keeper = df.loc[df["position"] == "GK", :].iloc[0].to_dict()
+        first_team = first_team.append(keeper, ignore_index=True)
+
+        # Then pick the rest of the team:
+        max_picks = {"DEF": 5, "MID": 5, "FWD": 3}
+        picked = {"DEF": 0, "MID": 0, "FWD": 0}
         for row in df.iterrows():
             if len(first_team) == 11:
                 break
@@ -158,6 +165,7 @@ class Squad:
                 max_picks["MID"] = 4
             if picked["MID"] == 5:
                 max_picks["DEF"] = 4
+
         return first_team
 
     @property
