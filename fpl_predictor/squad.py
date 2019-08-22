@@ -76,7 +76,7 @@ class Squad:
 
     def add_player(self, code: str, name: str, position: str, value: float,
                    score: float, score_per_value: float, team: str, **kwargs):
-        new_player = {"code": code, "name": name, "position": position, "team": team,
+        new_player = {"code": int(code), "name": name, "position": position, "team": team,
                       "value": value, "score": score, "score_per_value": score_per_value}
         if len(self.selected.loc[self.selected["position"] == position]) == self.limits[position]:
             raise PositionFilled(new_player)
@@ -166,6 +166,7 @@ class Squad:
             if picked["MID"] == 5:
                 max_picks["DEF"] = 4
 
+        first_team["code"] = first_team["code"].astype(int)
         return first_team
 
     @property

@@ -10,6 +10,15 @@ from fpl_predictor.api import ApiData
 from fpl_predictor.player_information import PlayerInformation
 
 
+legal_formations = [{"GK": 1, "DEF": 3, "MID": 4, "FWD": 3},
+                    {"GK": 1, "DEF": 3, "MID": 5, "FWD": 2},
+                    {"GK": 1, "DEF": 4, "MID": 4, "FWD": 2},
+                    {"GK": 1, "DEF": 4, "MID": 5, "FWD": 1},
+                    {"GK": 1, "DEF": 4, "MID": 3, "FWD": 3},
+                    {"GK": 1, "DEF": 5, "MID": 4, "FWD": 1},
+                    {"GK": 1, "DEF": 5, "MID": 3, "FWD": 2}]
+
+
 class SquadBuilder:
     def __init__(self, **kwargs):
         """Class for building a squad with the highest possible score on the
@@ -160,3 +169,56 @@ class SquadBuilder:
         `n_iterations` times."""
         optimise_function(self, n_iterations, year, week, live, **kwargs)
 
+    def team_points(self, year, week, benchboost=False):
+        """Get the total fantasy points the currently selected team would have
+        achieved in a given gameweek."""
+        selected = self.squad.selected_list
+        points = self._player_info.points_scored(year=year, week=week)
+        points = {k: v for k, v in points.items() if k in selected}
+        minutes = self._player_info.minutes_played(year, week)
+        minutes = {k: v for k, v in minutes.items() if k in selected}
+
+        # Double captain/vice-captain's points if they played:
+        captain = list(self.squad.captain.keys())[0]
+        vice_captain = list(self.squad.vice_captain.keys())[0]
+        if minutes[captain] > 0:
+            points[captain] = points[captain] * 2
+        elif minutes[vice_captain] > 0:
+            points[vice_captain] = points[vice_captain] * 2
+
+        if benchboost:
+            return {k: v for k, v in points.items() if k in selected}
+
+        to_score = self.squad.first_team
+
+        # Sub in substitutes who played over first-teamers who didn't:
+        subs = self.squad.substitutes
+        subs["minutes"] = subs["code"].map(minutes)
+        subs_played = subs.loc[subs["minutes"] > 0]
+        first_team = self.squad.first_team
+        first_team["minutes"] = first_team["code"].map(minutes)
+        didnt_play = first_team.loc[first_team["minutes"] == 0]
+
+        # Switch keepers first if possible:
+        if "GK" in subs_played["position"] and "GK" in didnt_play["position"]:
+            new_keeper = subs_played.loc[subs_played["position"] == "GK"].iloc[0].to_dict()
+            to_score = to_score.loc[to_score["position"] != "GK"]
+            to_score = to_score.append(new_keeper)
+        subs_played = subs_played.loc[subs_played["position"] != "GK"]
+
+        # Now try swapping any other subs in if legal formations:
+        for sub in subs_played.iterrows():
+            revert = to_score.copy()
+            swap_in = sub[1].to_dict()
+            for out in didnt_play.iterrows():
+                swap_out = out[1].to_dict()
+                to_score = to_score.loc[to_score["code"] != swap_out["code"]]
+                to_score = to_score.append(swap_in, ignore_index=True)
+                formation = to_score["position"].value_counts().to_dict()
+                if formation in legal_formations:
+                    didnt_play = didnt_play.loc[didnt_play["code"] != swap_in["code"]]
+                    break
+                else:
+                    to_score = revert
+
+        return {k: v for k, v in points.items() if k in list(to_score["code"])}
