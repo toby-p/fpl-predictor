@@ -1,88 +1,59 @@
-
+import datetime
+import json
+import os
 import pandas as pd
 
-from fpl_predictor.player_information import PlayerInformation
 from fpl_predictor.squad_builder import SquadBuilder
+from nav import DIR_DATA
 
 
 class SeasonSimulator:
 
-    def __init__(self, year, week, builder):
-        self.squad_builder = SquadBuilder()
-        self._player_information = PlayerInformation()
-        self.week = week
-        self.year = year
-        self.builder = builder
-        self.transfers = pd.DataFrame()
-        self.team_points = pd.DataFrame()
+    def __init__(self):
+        pass
 
-    def simulate(self, verbose=True):
-        self._current_squad = self.builder(self.squad_builder, year=self.year, week=self.week)
-        self.transfers = pd.DataFrame(columns=["GW", "out", "in"])
-        self.team_points = pd.DataFrame(columns=["GW", "total_points"])
-        self.current_team = self.strategy.pick_first_gameweek_team(self.year)
-        self.current_team.build_team()
+    def wildcards_all_year(self, year, squad_builder_kw, build_func, build_kw,
+                           optimiser_func, optimiser_kw):
+        sq = SquadBuilder(**squad_builder_kw)
+        points, squads = dict(), dict()
 
-        # Score the team:
-        uuids = sorted(self.current_team.first_team["uuid"])
-        score = self.score_team(self.year, 2, *uuids)
-        self.team_points = self.team_points.append({"GW": 1, "total_points": score}, ignore_index=True)
+        for week in range(1, 39, 1):
+            sq.build_squad(build_function=build_func, year=year, week=week, **build_kw)
+            optimiser_func(sq, year=year, week=week, **optimiser_kw)
+            points[week] = sq.team_points(year, week)
+            squads[week] = sq.squad.selected
 
-        players = self.current_team.team.team
-        n_transfers = 1
-        for gw in range(2, 38, 1):
-            if verbose:
-                print(f"Evaluating team for gw {gw} ... ", end="")
-            self.new_team = self.strategy.pick_gameweek_team(self.year, gw)
-            self.new_team.team.team = players
-            transfers = self.new_team.evaluate_transfers()
-            made_transfers = 0
-            if len(transfers):
-                for row in transfers.iterrows():
-                    if n_transfers > 0:
-                        remove = row[1]["old"]
-                        self.new_team.team.remove_player(remove)
-                        add = row[1]["new"]
-                        self.new_team.add_player(add)
-                        self.transfers = self.transfers.append({"GW": gw, "out": remove, "in": add}, ignore_index=True)
-                        n_transfers -= 1
-                        made_transfers += 1
-            if verbose:
-                print(f"made {made_transfers} transfer(s).")
+        self.points = points
+        self.squads = squads
 
-            # Score the team:
-            self.new_team.pick_first_team()
-            uuids = sorted(self.new_team.first_team["uuid"])
-            score = self.score_team(self.year, gw+1, *uuids)
-            self.team_points = self.team_points.append({"GW": gw, "total_points": score}, ignore_index=True)
+        parameters = {"squadbuilder_kw": {k: str(v) for k, v in squad_builder_kw.items()},
+                      "build_func": str(build_func),
+                      "build_kw": {k: str(v) for k, v in build_kw.items()},
+                      "optimiser_func": str(optimiser_func),
+                      "optimiser_kw": {k: str(v) for k, v in optimiser_kw.items()}}
+        self.save_results(year=year, parameters=parameters)
 
-            players = self.new_team.team.team
-            n_transfers += 1
-            n_transfers = 2 if n_transfers > 2 else n_transfers
+    @property
+    def now(self):
+        return datetime.datetime.now().strftime("%Y_%m_%d %H;%M;%S")
 
-    def score_team(self):
-        """Get the total score for the current squad, year, week attributes."""
-        codes = sorted(self.squad_builder.squad.selected["code"])
-        points = self._player_information.points_scored(year=self.year, week=self.week)
-        points = {k: v for k, v in points.items() if k in codes}
-        minutes = self._player_information.minutes_played(self.year, self.week)
-        minutes = {k: v for k, v in minutes.items() if k in codes}
+    @property
+    def total_points(self):
+        return sum({sum(v.values()) for k, v in self.points.items()})
 
-        # Double captain/vice-captain's points if they played:
-        captain = list(self.squad_builder.squad.captain.keys())[0]
-        vice_captain = list(self.squad_builder.squad.vice_captain.keys())[0]
-        if minutes[captain] > 0:
-            points[captain] = points[captain] * 2
-        elif minutes[vice_captain] > 0:
-            points[vice_captain] = points[vice_captain] * 2
+    def save_results(self, year, parameters):
+        dir_name = f"{self.total_points} - {year} - {self.now}"
+        dir_path = os.path.join(DIR_DATA, "results", "wildcard_all_season", dir_name)
+        os.mkdir(dir_path)
 
-        # Sub in substitutes who played over first-teamers who didn't:
-        subs = self.squad_builder.squad.substitutes
-        subs["minutes"] = subs["code"].map(minutes)
-        subs = subs.loc[subs["minutes"] > 0]
-        first_team = self.squad_builder.squad.first_team
-        first_team["minutes"] = first_team["code"].map(minutes)
-        first_team = first_team.loc[first_team["minutes"] == 0]
-        # TODO - Finish this logic.
+        fp = os.path.join(dir_path, "squads.xlsx")
+        writer = pd.ExcelWriter(fp)
+        for k, v in self.squads.items():
+            v.to_excel(excel_writer=writer, sheet_name=f"{k}", index=False)
+        writer.save()
 
-        return first_team
+        with open(os.path.join(dir_path, "week_points.json"), "w") as fp:
+            json.dump(self.points, fp)
+
+        with open(os.path.join(dir_path, "parameters.json"), "w") as fp:
+            json.dump(parameters, fp)

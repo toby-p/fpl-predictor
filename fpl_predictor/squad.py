@@ -149,6 +149,7 @@ class Squad:
         # First pick a keeper:
         keeper = df.loc[df["position"] == "GK", :].iloc[0].to_dict()
         first_team = first_team.append(keeper, ignore_index=True)
+        df = df.loc[df["position"] != "GK"]
 
         # Then pick the rest of the team:
         max_picks = {"DEF": 5, "MID": 5, "FWD": 3}

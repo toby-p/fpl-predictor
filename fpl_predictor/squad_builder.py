@@ -73,7 +73,8 @@ class SquadBuilder:
         up to BUT NOT including the year-week; availability and player values
         are FOR the year-week."""
         prev_y, prev_w = previous_week(year, week)
-        df = self._scoring_data.score(prev_y, prev_w, self.n, self.agg_func, self.cross_seasons)
+        df = self._scoring_data.score(year=prev_y, week=prev_w, n=self.n, agg_func=self.agg_func,
+                                      cross_seasons=self.cross_seasons)
         df = self._player_info.add_player_info_to_df(df, year=year, week=week, live=live)
         # Add in the points-per-value metric:
         df[self._val_metric] = df[self.scoring_metric] / df["value"]
@@ -81,7 +82,8 @@ class SquadBuilder:
 
     def _player_pool(self, year, week, live=False, position=None,
                      min_score=None, min_score_per_value=None, max_val=None,
-                     drop_unavailable=True):
+                     drop_unavailable=True, drop_selected=True,
+                     drop_maxed_out=True):
         """Get a pool of players to select from which meet the criteria."""
         df = self.players(year, week, live)
         if position:
@@ -106,11 +108,13 @@ class SquadBuilder:
             df = df.loc[df["available"]]
 
         # Remove already selected players:
-        df = df.loc[~df.index.isin(self.squad.selected_list)]
+        if drop_selected:
+            df = df.loc[~df.index.isin(self.squad.selected_list)]
 
         # Remove players from teams already maxed out:
-        if len(self.squad.maxed_out_teams):
-            df = df.loc[~df["team"].isin(self.squad.maxed_out_teams)]
+        if drop_maxed_out:
+            if len(self.squad.maxed_out_teams):
+                df = df.loc[~df["team"].isin(self.squad.maxed_out_teams)]
 
         # Rename scoring columns to generic names:
         df.rename(columns={self.scoring_metric: "score", self._val_metric: "score_per_value"}, inplace=True)
