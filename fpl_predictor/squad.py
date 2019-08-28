@@ -87,7 +87,8 @@ class Squad:
         if team in self.maxed_out_teams:
             raise MaxedOutTeam(new_player)
         self.selected = self.selected.append(new_player, ignore_index=True)
-        self.selected.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
+        self.selected.sort_values(by=["score", "score_per_value", "value"],
+                                  ascending=[False, False, True], inplace=True)
         self.selected.reset_index(drop=True, inplace=True)
 
     def remove_player(self, code):

@@ -28,9 +28,8 @@ class SquadBuilder:
         defaults = {"scoring_metric": "total_points", "n": 10, "agg_func": np.mean, "cross_seasons": True,
                     "percent_chance": 100, "min_minute_percent": 0.5}
         kw = {**defaults, **kwargs}
-        self.scoring_metric = kw["scoring_metric"]
-        self._val_metric = f"{self.scoring_metric}_per_value"
-        self.n = kw["n"]
+        self.set_scoring_metric(kw["scoring_metric"])
+        self.set_n(kw["n"])
         self.cross_seasons = kw["cross_seasons"]
         self.agg_func = kw["agg_func"]
         self.percent_chance = kw["percent_chance"]
@@ -58,6 +57,31 @@ class SquadBuilder:
         self.__squad = Squad()
         self.__first_team = pd.DataFrame()
 
+    @property
+    def scoring_cols(self):
+        return sorted(self._scoring_data._master.columns)
+
+    def set_scoring_metric(self, metric):
+        self._scoring_data = PlayerScorer(metric=metric)
+        self.__scoring_metric = metric
+        self.__val_metric = f"{metric}_per_value"
+
+    @property
+    def val_metric(self):
+        return self.__val_metric
+
+    @property
+    def scoring_metric(self):
+        return self.__scoring_metric
+
+    def set_n(self, n: int):
+        assert isinstance(n, int), f"`n` must be int."
+        self.__n = n
+
+    @property
+    def n(self):
+        return self.__n
+
     def player_availability(self, year, week, live=False, percent_chance=100):
         """Calculate player availability for a given year-week combination.
         If `live` then live data is pulled from the API, and year-week is ignored."""
@@ -77,7 +101,7 @@ class SquadBuilder:
                                       cross_seasons=self.cross_seasons)
         df = self._player_info.add_player_info_to_df(df, year=year, week=week, live=live)
         # Add in the points-per-value metric:
-        df[self._val_metric] = df[self.scoring_metric] / df["value"]
+        df[self.val_metric] = df[self.scoring_metric] / df["value"]
         return df.set_index("code")
 
     def _player_pool(self, year, week, live=False, position=None,
@@ -95,7 +119,7 @@ class SquadBuilder:
         if isinstance(min_score, Number):
             df = df.loc[df[self.scoring_metric] > min_score]
         if isinstance(min_score_per_value, Number):
-            df = df.loc[df[self._val_metric] > min_score_per_value]
+            df = df.loc[df[self.val_metric] > min_score_per_value]
         if isinstance(max_val, Number):
             df = df.loc[df["value"] <= max_val]
         if isinstance(self.min_minute_percent, Number):
@@ -117,7 +141,7 @@ class SquadBuilder:
                 df = df.loc[~df["team"].isin(self.squad.maxed_out_teams)]
 
         # Rename scoring columns to generic names:
-        df.rename(columns={self.scoring_metric: "score", self._val_metric: "score_per_value"}, inplace=True)
+        df.rename(columns={self.scoring_metric: "score", self.val_metric: "score_per_value"}, inplace=True)
 
         # Drop players with NaNs in these columns - they have left the league:
         df.dropna(subset=["position", "value", "team", "score_per_value"], inplace=True)

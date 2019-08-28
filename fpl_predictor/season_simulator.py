@@ -1,3 +1,4 @@
+
 import datetime
 import json
 import os
@@ -18,6 +19,7 @@ class SeasonSimulator:
         points, squads = dict(), dict()
 
         for week in range(1, 39, 1):
+            print(f"Week: {week}")
             sq.build_squad(build_function=build_func, year=year, week=week, **build_kw)
             optimiser_func(sq, year=year, week=week, **optimiser_kw)
             points[week] = sq.team_points(year, week)

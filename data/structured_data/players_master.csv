@@ -2018,7 +2018,7 @@ Adam Smith,54469,2,Adam,63,Smith,None,3,91,Adam Smith,2019,2019-20,DEF
 Lloyd Kelly,235530,2,Lloyd,64,Kelly,None,3,91,Kelly,2019,2019-20,DEF
 Diego Rico,171129,2,Diego,65,Rico,None,3,91,Rico,2019,2019-20,DEF
 Jack Simpson,222434,2,Jack,66,Simpson,None,3,91,Simpson,2019,2019-20,DEF
-Callum Wilson,75115,4,Callum,67,Wilson,None,3,91,Wilson,2019,2019-20,FWD
+Callum Wilson,75115,4,Callum,67,Wilson,None,3,91,Callum Wilson,2019,2019-20,FWD
 Joshua King,78007,4,Joshua,68,King,None,3,91,King,2019,2019-20,FWD
 Dominic Solanke,154566,4,Dominic,69,Solanke,None,3,91,Solanke,2019,2019-20,FWD
 Sam Surridge,217331,4,Sam,71,Surridge,None,3,91,Surridge,2019,2019-20,FWD
@@ -2037,7 +2037,7 @@ Jack Stacey,154131,2,Jack,446,Stacey,None,3,91,Stacey,2019,2019-20,DEF
 Philip Billing,168991,3,Philip,476,Billing,None,3,91,Billing,2019,2019-20,MID
 Arnaut Danjuma Groeneveld,220307,3,Arnaut,492,Danjuma Groeneveld,None,3,91,Danjuma,2019,2019-20,MID
 Aaron Ramsdale,225321,1,Aaron,494,Ramsdale,None,3,91,Ramsdale,2019,2019-20,GK
-Harry Wilson,153682,3,Harry,505,Wilson,None,3,91,Wilson,2019,2019-20,MID
+Harry Wilson,153682,3,Harry,505,Wilson,None,3,91,Harry Wilson,2019,2019-20,MID
 Shane Duffy,61933,2,Shane,37,Duffy,None,4,36,Duffy,2019,2019-20,DEF
 Martín Montoya,86153,2,Martín,38,Montoya,None,4,36,Montoya,2019,2019-20,DEF
 Bernardo Fernandes da Silva Junior,209362,2,Bernardo,39,Fernandes da Silva Junior,None,4,36,Bernardo,2019,2019-20,DEF
@@ -2211,6 +2211,8 @@ James Milner,15157,3,James,200,Milner,None,10,14,Milner,2019,2019-20,MID
 Rafael Camacho,217989,3,Rafael,201,Camacho,None,10,14,Camacho,2019,2019-20,MID
 Rhian Brewster,195473,4,Rhian,464,Brewster,None,10,14,Brewster,2019,2019-20,FWD
 Adrián San Miguel del Castillo,60706,1,Adrián,526,San Miguel del Castillo,None,10,14,Adrián,2019,2019-20,GK
+Andy Lonergan,11948,1,Andy,530,Lonergan,None,10,14,Lonergan,2019,2019-20,GK
+Caoimhin Kelleher,200720,1,Caoimhin,531,Kelleher,None,10,14,Kelleher,2019,2019-20,GK
 Aymeric Laporte,146941,2,Aymeric,202,Laporte,None,11,43,Laporte,2019,2019-20,DEF
 Kyle Walker,58621,2,Kyle,203,Walker,None,11,43,Walker,2019,2019-20,DEF
 Benjamin Mendy,102826,2,Benjamin,204,Mendy,None,11,43,Mendy,2019,2019-20,DEF
@@ -2372,6 +2374,7 @@ Moussa Djenepo,431131,3,Moussa,438,Djenepo,None,16,20,Djenepo,2019,2019-20,MID
 Wesley Hoedt,167075,2,Wesley,485,Hoedt,None,16,20,Hoedt,2019,2019-20,DEF
 Cédric Soares,58822,2,Cédric,486,Soares,None,16,20,Cédric,2019,2019-20,DEF
 Sofiane Boufal,128198,3,Sofiane,508,Boufal,None,16,20,Boufal,2019,2019-20,MID
+Kevin Danso,135720,2,Kevin,532,Danso,None,16,20,Danso,2019,2019-20,DEF
 Ben Davies,115556,2,Ben,329,Davies,None,17,6,Davies,2019,2019-20,DEF
 Jan Vertonghen,39194,2,Jan,330,Vertonghen,None,17,6,Vertonghen,2019,2019-20,DEF
 Toby Alderweireld,55605,2,Toby,331,Alderweireld,None,17,6,Alderweireld,2019,2019-20,DEF

@@ -42,6 +42,8 @@ def evaluate_transfers(self, year, week, live=False, percent_chance=100,
             transfer = self._select_player(pool)
             transfer = {**old_player, **transfer}
             df = df.append(transfer, ignore_index=True)
+    if not len(df):
+        return "No transfers found."
     df["score_gain"] = df["score"] - df["out_score"]
     df["score_per_val_gain"] = df["score_per_value"] - df["out_score_per_value"]
     df["val_gain"] = df["out_value"] - df["value"]
