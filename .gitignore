@@ -9,3 +9,6 @@ __deprecated.py
 **/strategies/
 !**/strategies/sample.py
 !**/strategies/README.txt
+
+/data/ml_datasets/
+!/data/ml_datasets/README.txt
