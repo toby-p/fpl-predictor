@@ -1,8 +1,8 @@
-
 import itertools
 import os
 import pandas as pd
 import random
+from sklearn.preprocessing import OneHotEncoder
 import string
 import warnings
 
@@ -14,7 +14,7 @@ def random_str(length=15):
 
 
 FEATURE_COLS = [
-    "assists", "attempted_passes", "big_chances_created", "big_chances_missed", "bonus", "bps",  "clean_sheets",
+    "assists", "attempted_passes", "big_chances_created", "big_chances_missed", "bonus", "bps", "clean_sheets",
     "clearances_blocks_interceptions", "completed_passes", "creativity", "dribbles", "errors_leading_to_goal",
     "errors_leading_to_goal_attempt", "fouls", "goals_conceded", "goals_scored", "ict_index", "influence", "key_passes",
     "offside", "open_play_crosses", "opponent_team_score", "own_goals", "penalties_conceded", "penalties_missed",
@@ -26,6 +26,8 @@ DUMMY_COLS = ["player_team_name", "opponent_team_name"]
 
 
 class FeatureEngineer:
+    ix_cols = ["Season", "GW", "code"]
+
     def __init__(self):
         fp = os.path.join(DIR_STRUCTURED_DATA, "master.csv")
         self.__master = pd.read_csv(fp, encoding="latin-1")
@@ -59,7 +61,7 @@ class FeatureEngineer:
                             values=feature, aggfunc="mean").fillna(0).shift(1)
         df = df.rolling(window=x).sum().stack().reset_index()
         df = df.rename(columns={0: f"last_{x}_GW_{feature}"})
-        df = df.set_index(["Season", "GW", "code"])
+        df = df.set_index(self.ix_cols)
         self.__df = pd.merge(self.__df, df, left_index=True, right_index=True)
 
     def add_target(self, feature="total_points"):
@@ -74,3 +76,17 @@ class FeatureEngineer:
         fp = os.path.join(DIR_ML_DATA, name)
         self.dataset.to_csv(fp, encoding="latin-1", index=True)
         print(f"Dataset saved at: {fp}")
+
+    def dummy_feature(self, feature="player_team_name"):
+        """Create dummy variable columns from a categorical feature."""
+        df = self.master[self.ix_cols + [feature]]
+        enc = OneHotEncoder(handle_unknown="ignore")
+        enc.fit(df[[feature]])
+        dummies = pd.DataFrame(enc.fit_transform(df[[feature]]).toarray(),
+                               columns=enc.categories_)
+        dummies.columns = dummies.columns.levels[0]
+        rename = {c: f"{feature}_{c}" for c in dummies.columns}
+        dummies.rename(columns=rename, inplace=True)
+        dummies = pd.merge(dummies, df[self.ix_cols], left_index=True, right_index=True)
+        dummies.set_index(self.ix_cols, inplace=True)
+        self.__df = pd.merge(self.__df, dummies, left_index=True, right_index=True)
