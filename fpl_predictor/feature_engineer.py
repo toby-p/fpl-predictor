@@ -1,3 +1,4 @@
+
 import itertools
 import os
 import pandas as pd
@@ -52,7 +53,11 @@ class FeatureEngineer:
     def target_features(self):
         return sorted([c for c in self.dataset.columns if "TARGET_" in c])
 
-    def add_feature(self, feature="total_points", x=5):
+    @property
+    def predictors(self):
+        return sorted([c for c in self.dataset.columns if "TARGET_" not in c])
+
+    def sum_feature(self, feature="total_points", x=5, add_to_df=True):
         """Add a predictor feature aggregating the last `x` weeks total of the
         given column to the dataset."""
         if feature not in FEATURE_COLS:
@@ -62,10 +67,51 @@ class FeatureEngineer:
         df = df.rolling(window=x).sum().stack().reset_index()
         df = df.rename(columns={0: f"last_{x}_GW_{feature}"})
         df = df.set_index(self.ix_cols)
-        self.__df = pd.merge(self.__df, df, left_index=True, right_index=True)
+        if add_to_df:
+            self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
+        else:
+            return df
+
+    def mean_feature(self, feature="total_points", x=5, add_to_df=True):
+        """Add a predictor feature aggregating the last `x` weeks total of the
+        given column to the dataset."""
+        if feature not in FEATURE_COLS:
+            warnings.warn(f"Column not previously identified as suitable ML feature: {feature}")
+        df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
+                            values=feature, aggfunc="mean").fillna(0).shift(1)
+        df = df.rolling(window=x).mean().stack().reset_index()
+        df = df.rename(columns={0: f"last_{x}_GW_{feature}"})
+        df = df.set_index(self.ix_cols)
+        if add_to_df:
+            self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
+        else:
+            return df
+
+    def x_y_diff_feature(self, x=5, y=20, feature="total_points", add_to_df=True):
+        """Add a column with the mean of the feature in the previous `x` weeks
+        minus the mean in the previous `y` weeks. Positive scores indicate
+        recent score on the feature has been higher than previously.
+        """
+        if feature not in FEATURE_COLS:
+            warnings.warn(f"Column not previously identified as suitable ML feature: {feature}")
+        dfs = []
+        for k, v in {"x": x, "y": y}.items():
+            df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
+                                values=feature, aggfunc="mean").fillna(0).shift(1)
+            df = df.rolling(window=v).mean().stack().reset_index()
+            df = df.rename(columns={0: k})
+            df = df.set_index(self.ix_cols)
+            dfs.append(df)
+        df = pd.merge(dfs[0], dfs[1], left_index=True, right_index=True)
+        df[f"{x}_diff_{y}_{feature}"] = df["x"] - df["y"]
+        df.drop(columns=["x", "y"], inplace=True)
+        if add_to_df:
+            self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
+        else:
+            return df
 
     def add_target(self, feature="total_points"):
-        """As a target independent variable feature to the dataset."""
+        """Add a target independent variable feature to the dataset."""
         series = self.master.set_index(["Season", "GW", "code"])[feature]
         series.name = f"TARGET_{feature}"
         self.__df = pd.merge(self.__df, series, left_index=True, right_index=True)
@@ -90,3 +136,10 @@ class FeatureEngineer:
         dummies = pd.merge(dummies, df[self.ix_cols], left_index=True, right_index=True)
         dummies.set_index(self.ix_cols, inplace=True)
         self.__df = pd.merge(self.__df, dummies, left_index=True, right_index=True)
+
+    def __str__(self):
+        s = f"FeatureEngineer\n\nTargets:\n  {self.target_features}\n\nPredictors:\n  {self.predictors}"
+        return s
+
+    def __repr__(self):
+        return self.__str__()
