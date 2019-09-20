@@ -110,5 +110,11 @@ class PlayerInformation:
         df = index_players(self._master, column="minutes")
         return df.loc[(year, week), :].to_dict()
 
-
-
+    def get_player(self, code: int, year: int = None, week: int = None,
+                   live=False):
+        """Get a dict of player information from their code."""
+        player = dict(code=code, name=self.player_names()[code],
+                      position=self.player_positions(year=year, live=live)[code],
+                      value=self.player_values(year=year, week=week, live=live)[code],
+                      team=self.player_teams(year=year, live=live)[code])
+        return player

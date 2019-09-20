@@ -2,6 +2,7 @@
 
 *.ipynb
 !**/bugs.ipynb
+!/example_usage.ipynb
 
 **/__pycache__
 __deprecated.py

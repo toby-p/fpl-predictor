@@ -39,8 +39,8 @@ class DataBuilder:
 
             # Save the positions & team codes:
             y_df["position"] = y_df["element_type"].map({1: "GK", 2: "DEF", 3: "MID", 4: "FWD"})
-            positions[y] = dict(zip(y_df["id"], y_df["position"]))
-            teams[y] = dict(zip(y_df["id"], y_df["team_code"]))
+            positions[y] = dict(zip(y_df["code"], y_df["position"]))
+            teams[y] = dict(zip(y_df["code"], y_df["team_code"]))
             year_team_codes[y] = dict(zip(y_df["team"], y_df["team_code"]))
 
             df = df.append(y_df, sort=False)
@@ -55,7 +55,7 @@ class DataBuilder:
         with open(fp, "w") as f:
             json.dump(names, f)
 
-        # Save JSON file of positions/teams per year (as they change over time):
+        # Save JSON file of positions/teams per year (they can change over seasons):
         fp = os.path.join(DIR_STRUCTURED_DATA, "year_player_position.json")
         with open(fp, "w") as f:
             json.dump(positions, f)

@@ -1,5 +1,6 @@
 
 import os
+from numbers import Number
 import numpy as np
 import pandas as pd
 
@@ -55,3 +56,11 @@ class PlayerScorer:
         mins = self.__player_minutes_percent(year, week, n, cross_seasons=cross_seasons)
         df["minutes_percent"] = df["code"].map(mins)
         return df
+
+    def get_player_score(self, code: int, year: int, week: int):
+        """Get an individual player's score for the given year-week."""
+        score = self._ix_score.loc[(year, week), code]
+        if isinstance(score, Number):
+            return score
+        else:
+            raise TypeError(f"Can't find player score: code {code}, year: {year}, week: {week}")

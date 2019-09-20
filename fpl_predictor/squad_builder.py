@@ -54,7 +54,7 @@ class SquadBuilder:
         self._ix_player_available = df.fillna(True)
 
         # Attributes for tracking team selections:
-        self.__squad = Squad()
+        self.squad = Squad()
         self.__first_team = pd.DataFrame()
 
     @property
@@ -84,7 +84,7 @@ class SquadBuilder:
 
     def player_availability(self, year, week, live=False, percent_chance=100):
         """Calculate player availability for a given year-week combination.
-        If `live` then live data is pulled from the API, and year-week is ignored."""
+        If `live` data is pulled from the API, and year-week is ignored."""
         if live:
             return self._api_data.players_available(percent_chance=percent_chance)
         else:
@@ -162,10 +162,6 @@ class SquadBuilder:
         player = pool.loc[code].to_dict()
         player["code"] = code
         return player
-
-    @property
-    def squad(self):
-        return self.__squad
 
     def squad_unavailable(self, year, week, live=False, percent_chance=100):
         """Identify members of the currently selected squad who are unavailable
@@ -250,3 +246,12 @@ class SquadBuilder:
                     to_score = revert
 
         return {k: v for k, v in points.items() if k in list(to_score["code"])}
+
+    def add_player(self, code: int, year: int, week: int, live=False):
+        """Add a player to the current squad."""
+        player = self._player_info.get_player(code, year, week, live)
+        score = self._scoring_data.get_player_score(code, year, week)
+        player["score"] = score
+        player["score_per_value"] = score / player["value"]
+        self.squad.add_player(**player)
+        print(f"Player added to squad: {player['name']}")

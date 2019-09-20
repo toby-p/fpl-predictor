@@ -57,7 +57,7 @@ def evaluate_transfers(self, year, week, live=False, percent_chance=100,
     if unavailable_first:
         df.sort_values(by=["first_team_unavailable", "squad_unavailable"], ascending=False, inplace=True)
 
-    return df.reset_index(drop=True)
+    return df.reset_index(drop=True).drop(columns=["out_position"])
 
 
 def make_tranfers(self: SquadBuilder, n_transfers: int,
