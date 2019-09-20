@@ -94,8 +94,9 @@ class Squad:
     def remove_player(self, code):
         if code not in list(self.selected["code"]):
             raise ValueError(f"code not in team: {code}")
+        name = self.selected.loc[self.selected["code"] == code, "name"].values[0]
         self.selected = self.selected.loc[self.selected["code"] != code].reset_index(drop=True)
-        print(f"Removed player {code} from squad, {len(self.selected)} remain.")
+        print(f"Removed player from squad ({len(self.selected)} remain): {name}")
 
     @property
     def squad_full(self):
