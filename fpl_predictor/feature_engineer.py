@@ -57,74 +57,103 @@ class FeatureEngineer:
     def predictors(self):
         return sorted([c for c in self.dataset.columns if "TARGET_" not in c])
 
-    def sum_feature(self, feature="total_points", x=5, add_to_df=True):
-        """Add a predictor feature aggregating the last `x` weeks total of the
-        given column to the dataset."""
+    def add_sum_feature(self, feature: str = "total_points", x: int = 5):
+        """Get a predictor feature giving the sum of the last `x` weeks of the
+        feature column.
+
+        Args:
+            feature (str): column name of a feature in the raw data.
+            x (int): number of recent weeks' data to sum.
+        """
         if feature not in FEATURE_COLS:
             warnings.warn(f"Column not previously identified as suitable ML feature: {feature}")
         df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
                             values=feature, aggfunc="mean").fillna(0).shift(1)
         df = df.rolling(window=x).sum().stack().reset_index()
-        df = df.rename(columns={0: f"last_{x}_GW_{feature}"})
+        column_name = f"last_{x}_GW_{feature}"
+        df = df.rename(columns={0: column_name})
         df = df.set_index(self.ix_cols)
-        if add_to_df:
-            self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
-        else:
-            return df
+        self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
+        print(f"Added sum feature column: {column_name}")
 
-    def mean_feature(self, feature="total_points", x=5, add_to_df=True):
-        """Add a predictor feature aggregating the last `x` weeks total of the
-        given column to the dataset."""
+    def add_mean_feature(self, feature: str = "total_points", x: int = 5):
+        """Get a predictor feature giving the mean of the last `x` weeks of the
+        feature column.
+
+        Args:
+            feature (str): column name of a feature in the raw data.
+            x (int): number of recent weeks' data to average.
+        """
         if feature not in FEATURE_COLS:
             warnings.warn(f"Column not previously identified as suitable ML feature: {feature}")
         df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
                             values=feature, aggfunc="mean").fillna(0).shift(1)
         df = df.rolling(window=x).mean().stack().reset_index()
-        df = df.rename(columns={0: f"last_{x}_GW_{feature}"})
+        column_name = f"last_{x}_GW_{feature}"
+        df = df.rename(columns={0: column_name})
         df = df.set_index(self.ix_cols)
-        if add_to_df:
-            self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
-        else:
-            return df
+        self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
+        print(f"Added mean feature column: {column_name}")
 
-    def x_y_diff_feature(self, x=5, y=20, feature="total_points", add_to_df=True):
+    def add_x_y_diff_feature(self, x: int = 5, y: int = 20,
+                             feature: str = "total_points"):
         """Add a column with the mean of the feature in the previous `x` weeks
         minus the mean in the previous `y` weeks. Positive scores indicate
         recent score on the feature has been higher than previously.
+
+        Args:
+            x (int): short period of recent weeks data to get mean of.
+            y (int): long period of recent weeks data to get mean of.
+            feature (str): column name of a feature in the raw data.
         """
         if feature not in FEATURE_COLS:
             warnings.warn(f"Column not previously identified as suitable ML feature: {feature}")
         dfs = []
-        for k, v in {"x": x, "y": y}.items():
+        for column_name, num_weeks in [("x", x), ("y", y)]:
             df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
                                 values=feature, aggfunc="mean").fillna(0).shift(1)
-            df = df.rolling(window=v).mean().stack().reset_index()
-            df = df.rename(columns={0: k})
+            df = df.rolling(window=num_weeks).mean().stack().reset_index()
+            df = df.rename(columns={0: column_name})
             df = df.set_index(self.ix_cols)
             dfs.append(df)
         df = pd.merge(dfs[0], dfs[1], left_index=True, right_index=True)
-        df[f"{x}_diff_{y}_{feature}"] = df["x"] - df["y"]
+        new_col_name = f"{x}_diff_{y}_{feature}"
+        df[new_col_name] = df["x"] - df["y"]
         df.drop(columns=["x", "y"], inplace=True)
-        if add_to_df:
-            self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
-        else:
-            return df
+        self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
+        print(f"Added column to `dataset` attribute: {new_col_name}")
 
-    def add_target(self, feature="total_points"):
-        """Add a target independent variable feature to the dataset."""
+    def add_target_feature(self, feature: str = "total_points"):
+        """Add a target independent variable feature to the dataset.
+
+        Args:
+            feature (str): column name of a feature in the raw data.
+        """
         series = self.master.set_index(["Season", "GW", "code"])[feature]
         series.name = f"TARGET_{feature}"
         self.__df = pd.merge(self.__df, series, left_index=True, right_index=True)
+        print(f"Added target feature to `dataset`: {series.name}")
 
-    def save_dataset(self, name=None):
+    def save_dataset(self, name: str = None):
+        """Save the DataFrame currently saved at the `dataset` attribute as a
+        CSV.
+
+        Args:
+            name (str): filename for the CSV; if not passed a random string is
+                used.
+        """
         assert len(self.target_features), "No target features added to dataset, use `add_target`."
         name = f"{random_str()}.csv" if not name else f"{name}.csv"
         fp = os.path.join(DIR_ML_DATA, name)
         self.dataset.to_csv(fp, encoding="latin-1", index=True)
         print(f"Dataset saved at: {fp}")
 
-    def dummy_feature(self, feature="player_team_name"):
-        """Create dummy variable columns from a categorical feature."""
+    def add_dummy_feature(self, feature: str = "player_team_name"):
+        """Create dummy variable columns from a categorical feature.
+
+        Args:
+            feature (str): column name of a categorical feature in the raw data.
+        """
         df = self.master[self.ix_cols + [feature]]
         enc = OneHotEncoder(handle_unknown="ignore")
         enc.fit(df[[feature]])
@@ -136,6 +165,7 @@ class FeatureEngineer:
         dummies = pd.merge(dummies, df[self.ix_cols], left_index=True, right_index=True)
         dummies.set_index(self.ix_cols, inplace=True)
         self.__df = pd.merge(self.__df, dummies, left_index=True, right_index=True)
+        print(f"Added dummy features for categorical column: {feature}")
 
     def __str__(self):
         s = f"FeatureEngineer\n\nTargets:\n  {self.target_features}\n\nPredictors:\n  {self.predictors}"

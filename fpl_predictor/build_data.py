@@ -25,6 +25,12 @@ class DataBuilder:
         if build_master_csv:
             self.build_master_csv()
 
+    @property
+    def master(self):
+        """Inspect the current master CSV file."""
+        fp = os.path.join(DIR_STRUCTURED_DATA, "master.csv")
+        return pd.read_csv(fp, encoding="latin-1")
+
     def build_player_files(self):
         """Build master CSV of all players per year, with their unique code.
         Also builds a nested JSON dict of {year: {player code: position}}."""
@@ -106,7 +112,7 @@ class DataBuilder:
         """Return the gameweek data for the given year-week combination."""
         path = os.path.join(self.__season_dir(year), "gws")
         filename = f"gw{week}.csv"
-        df = pd.read_csv(os.path.join(path, filename), encoding='latin1')
+        df = pd.read_csv(os.path.join(path, filename), encoding="latin1")
         df["year"] = year
         df["year, id"] = tuple(zip(df["year"], df["element"]))
         df["code"] = df["year, id"].map(self.__year_id_to_code)
@@ -115,16 +121,18 @@ class DataBuilder:
     def make_year_gw_df(self, year: int):
         """Make master DF of all player GW data for the given year."""
         df = pd.DataFrame()
-        for i in range(1, 39, 1):
+        for week in range(1, 39, 1):
             try:
-                new = self.get_gw_data(year, i)
-                new["GW"] = i
+                new = self.get_gw_data(year, week)
+                new["GW"] = week
                 df = df.append(new, sort=False)
             except FileNotFoundError:
                 continue
         df["Season"] = f"{year}-{(year - 2000) + 1}"
         df["opponent_team_name"] = df["opponent_team"].map(self.year_team_codes[year])
         df["opponent_team_name"] = df["opponent_team_name"].map(self.team_codes)
+        df["year, code"] = tuple(zip(df["year"], df["code"]))
+        df["player_team_name"] = df["year, code"].map(self.team_map)
         return df.reset_index(drop=True)
 
     def build_master_csv(self):
@@ -136,8 +144,6 @@ class DataBuilder:
         for col in ["GW", "element"]:
             df[col] = df[col].astype(int)
         df.reset_index(drop=True, inplace=True)
-        df["year, element"] = tuple(zip(df["year"], df["element"]))
-        df["player_team_name"] = df["year, element"].map(self.team_map)
 
         # Add columns for player/opponent team goals scored:
         df["player_team_score"] = np.where(df["was_home"], df["team_h_score"], df["team_a_score"])
