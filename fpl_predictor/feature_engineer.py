@@ -70,7 +70,7 @@ class FeatureEngineer:
         df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
                             values=feature, aggfunc="mean").fillna(0).shift(1)
         df = df.rolling(window=x).sum().stack().reset_index()
-        column_name = f"last_{x}_GW_{feature}"
+        column_name = f"last_{x}_GW_{feature}_sum"
         df = df.rename(columns={0: column_name})
         df = df.set_index(self.ix_cols)
         self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
@@ -89,7 +89,7 @@ class FeatureEngineer:
         df = pd.pivot_table(self.master, index=("Season", "GW"), columns="code",
                             values=feature, aggfunc="mean").fillna(0).shift(1)
         df = df.rolling(window=x).mean().stack().reset_index()
-        column_name = f"last_{x}_GW_{feature}"
+        column_name = f"last_{x}_GW_{feature}_mean"
         df = df.rename(columns={0: column_name})
         df = df.set_index(self.ix_cols)
         self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
@@ -123,8 +123,18 @@ class FeatureEngineer:
         self.__df = pd.merge(self.__df, df, left_index=True, right_index=True, how="outer")
         print(f"Added column to `dataset` attribute: {new_col_name}")
 
+    def add_raw_feature(self, feature: str = "ict_index"):
+        """Add a raw independent variable feature from the master to the dataset.
+
+        Args:
+            feature (str): column name of a feature in the raw data.
+        """
+        series = self.master.set_index(["Season", "GW", "code"])[feature]
+        self.__df = pd.merge(self.__df, series, left_index=True, right_index=True, how="outer")
+        print(f"Added feature to `dataset`: {series.name}")
+
     def add_target_feature(self, feature: str = "total_points"):
-        """Add a target independent variable feature to the dataset.
+        """Add a target dependent variable feature to the dataset.
 
         Args:
             feature (str): column name of a feature in the raw data.
@@ -164,7 +174,7 @@ class FeatureEngineer:
         dummies.rename(columns=rename, inplace=True)
         dummies = pd.merge(dummies, df[self.ix_cols], left_index=True, right_index=True)
         dummies.set_index(self.ix_cols, inplace=True)
-        self.__df = pd.merge(self.__df, dummies, left_index=True, right_index=True)
+        self.__df = pd.merge(self.__df, dummies, left_index=True, right_index=True, how="outer")
         print(f"Added dummy features for categorical column: {feature}")
 
     def __str__(self):
