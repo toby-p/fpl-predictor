@@ -5,6 +5,7 @@ import pandas as pd
 
 from fpl_predictor.api import ApiData
 from fpl_predictor.functions import index_players
+from fpl_predictor.dtypes import csvtypes
 from nav import DIR_STRUCTURED_DATA, DIR_STATIC
 
 
@@ -13,12 +14,9 @@ class PlayerInformation:
     given year-week."""
 
     def __init__(self):
-        """Get historic player details for the given year-week combination. If
-        `live` is True then data is collected from the live API feed instead and
-        the `year` and `week` arguments are ignored."""
         self._api_data = ApiData()
         fp = os.path.join(DIR_STRUCTURED_DATA, "master.csv")
-        df = pd.read_csv(fp, encoding="utf-8")
+        df = pd.read_csv(fp, encoding="utf-8", dtype=csvtypes)
         self._master = df
 
     def _master_year_week(self, year, week):
@@ -59,7 +57,7 @@ class PlayerInformation:
             with open(fp, "r") as f:
                 return {int(k): v for k, v in json.load(f).items()}
 
-    def search_players(self, *strings, live=False):
+    def search_players(self, *strings: str, live: bool = False):
         """Search for player names matching the supplied strings to get their
         unqiue codes."""
         strings = [s.lower() for s in strings]
