@@ -26,6 +26,15 @@ def save_json(d: dict, fp: str):
     with open(fp, "w") as f:
         json.dump(d, f)
 
+
+def open_json(fp: str) -> dict:
+    """Open a JSON file at the specified filepath and return it as a dict."""
+    fp = f"{fp}.json" if str.lower(fp)[-5:] != ".json" else fp
+
+    with open(fp) as f:
+        return json.load(f)
+
+
 def now_as_string(date_format="%Y_%m_%d %H;%M;%S", timezone="US/Eastern"):
     """Get a string representation of the current time in the desired
     format. Reference for string formatting dates available here:
