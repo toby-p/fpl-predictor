@@ -86,14 +86,15 @@ class PlayerInformation:
             return {int(k): v for k, v in d.items()}
 
     def add_player_info_to_df(self, df, year: int = None, week: int = None,
-                              live=False, code_col="code"):
-        """Adds all player details to a Pandas DataFrame, which must have a
-        `code_col` column with the unique player id."""
+                              live=False, code_col: str = None):
+        """Adds all player details to a Pandas DataFrame, mapping to the
+        `code_col`. If`code_col` is None maps to the index."""
         df = df.copy()
-        df["position"] = df[code_col].map(self.player_positions(year=year, live=live))
-        df["value"] = df[code_col].map(self.player_values(year=year, week=week, live=live))
-        df["team"] = df[code_col].map(self.player_teams(year=year, live=live))
-        df["name"] = df[code_col].map(self.player_names(live=live))
+        map_col = df[code_col] if code_col else df.index
+        df["position"] = map_col.map(self.player_positions(year=year, live=live))
+        df["value"] = map_col.map(self.player_values(year=year, week=week, live=live))
+        df["team"] = map_col.map(self.player_teams(year=year, live=live))
+        df["name"] = map_col.map(self.player_names(live=live))
         return df
 
     def points_scored(self, year: int = None, week: int = None):

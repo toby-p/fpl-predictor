@@ -1,4 +1,3 @@
-
 from numbers import Number
 import numpy as np
 import pandas as pd
@@ -9,7 +8,6 @@ from fpl_predictor.player_scorer import PlayerScorer
 from fpl_predictor.api import ApiData
 from fpl_predictor.player_information import PlayerInformation
 
-
 legal_formations = [{"GK": 1, "DEF": 3, "MID": 4, "FWD": 3},
                     {"GK": 1, "DEF": 3, "MID": 5, "FWD": 2},
                     {"GK": 1, "DEF": 4, "MID": 4, "FWD": 2},
@@ -17,6 +15,13 @@ legal_formations = [{"GK": 1, "DEF": 3, "MID": 4, "FWD": 3},
                     {"GK": 1, "DEF": 4, "MID": 3, "FWD": 3},
                     {"GK": 1, "DEF": 5, "MID": 4, "FWD": 1},
                     {"GK": 1, "DEF": 5, "MID": 3, "FWD": 2}]
+
+VERBOSE = True
+
+
+def verbose_print(msg: str):
+    if VERBOSE:
+        print(msg)
 
 
 class SquadBuilder:
@@ -34,12 +39,12 @@ class SquadBuilder:
         self.agg_func = kw["agg_func"]
         self.percent_chance = kw["percent_chance"]
         self.min_minute_percent = kw["min_minute_percent"]
-        self._scoring_data = PlayerScorer(metric=self.scoring_metric)
-        self._api_data = ApiData()
-        self._player_info = PlayerInformation()
+        self.PlayerScorer = PlayerScorer(metric=self.scoring_metric)
+        self.ApiData = ApiData()
+        self.PlayerInformation = PlayerInformation()
 
         # Player availability index. Use minutes played previous week as a proxy for availability:
-        df = self._scoring_data._ix_player_minutes.copy()
+        df = self.PlayerScorer.minutes.copy()
         df = df.shift(1)
         df[df > 0] = True
         df = df.replace(0, False)
@@ -59,10 +64,10 @@ class SquadBuilder:
 
     @property
     def scoring_cols(self):
-        return sorted(self._scoring_data._master.columns)
+        return sorted(self.PlayerScorer.master.columns)
 
     def set_scoring_metric(self, metric):
-        self._scoring_data = PlayerScorer(metric=metric)
+        self.PlayerScorer = PlayerScorer(metric=metric)
         self.__scoring_metric = metric
         self.__val_metric = f"{metric}_per_value"
 
@@ -86,59 +91,76 @@ class SquadBuilder:
         """Calculate player availability for a given year-week combination.
         If `live` data is pulled from the API, and year-week is ignored."""
         if live:
-            return self._api_data.players_available(percent_chance=percent_chance)
+            return self.ApiData.players_available(percent_chance=percent_chance)
         else:
             s = self._ix_player_available.loc[(year, week), :].fillna(False)
             return s.to_dict()
 
-    def players(self, year, week, live=False):
+    def players(self, year: int, week: int, live=False):
         """Get a DataFrame of all players, sorted by total score on the
         `scoring_metric` used when instantiating this object. Players are scored
         up to BUT NOT including the year-week; availability and player values
         are FOR the year-week."""
         prev_y, prev_w = previous_week(year, week)
-        df = self._scoring_data.score(year=prev_y, week=prev_w, n=self.n, agg_func=self.agg_func,
-                                      cross_seasons=self.cross_seasons)
-        df = self._player_info.add_player_info_to_df(df, year=year, week=week, live=live)
+        df = self.PlayerScorer.get_all_scores(year=prev_y, week=prev_w, n=self.n, agg_func=self.agg_func,
+                                              cross_seasons=self.cross_seasons)
+        df = self.PlayerInformation.add_player_info_to_df(df, year=year, week=week, live=live)
         # Add in the points-per-value metric:
         df[self.val_metric] = df[self.scoring_metric] / df["value"]
-        return df.set_index("code")
+        return df
 
-    def _player_pool(self, year, week, live=False, position=None,
-                     min_score=None, min_score_per_value=None, max_val=None,
-                     drop_unavailable=True, drop_selected=True,
-                     drop_maxed_out=True):
+    def get_player_pool(self, year, week, live=False, position=None,
+                        min_score=None, min_score_per_value=None, max_val=None,
+                        drop_unavailable=True, drop_selected=True,
+                        drop_maxed_out=True):
         """Get a pool of players to select from which meet the criteria."""
         df = self.players(year, week, live)
+        n = len(df)
+
         if position:
-            if isinstance(position, str):
-                position = [position]
+            position = [position] if isinstance(position, str) else position
             assert all([p in ["GK", "DEF", "MID", "FWD"] for p in position]), \
                 f"invalid position(s): {', '.join(position)}"
             df = df.loc[df["position"].isin(position)]
+            verbose_print(f"Dropped {n - len(df):,} rows for `position`")
+            n = len(df)
         if isinstance(min_score, Number):
             df = df.loc[df[self.scoring_metric] > min_score]
+            verbose_print(f"Dropped {n - len(df):,} rows for `min_score`")
+            n = len(df)
         if isinstance(min_score_per_value, Number):
             df = df.loc[df[self.val_metric] > min_score_per_value]
+            verbose_print(f"Dropped {n - len(df):,} rows for `min_score_per_value`")
+            n = len(df)
         if isinstance(max_val, Number):
             df = df.loc[df["value"] <= max_val]
+            verbose_print(f"Dropped {n - len(df):,} rows for `max_val`")
+            n = len(df)
         if isinstance(self.min_minute_percent, Number):
             df = df.loc[df["minutes_percent"] >= self.min_minute_percent]
+            verbose_print(f"Dropped {n - len(df):,} rows for `self.min_minute_percent`")
+            n = len(df)
         if drop_unavailable:
             available = self.player_availability(year, week, live, self.percent_chance)
             df["available"] = df.index.map(available)
             # Drop False available (or NaN - assumed to have left league):
             df["available"].fillna(False, inplace=True)
             df = df.loc[df["available"]]
+            verbose_print(f"Dropped {n - len(df):,} rows for `drop_unavailable`")
+            n = len(df)
 
         # Remove already selected players:
         if drop_selected:
             df = df.loc[~df.index.isin(self.squad.selected_list)]
+            verbose_print(f"Dropped {n - len(df):,} rows for `drop_selected`")
+            n = len(df)
 
         # Remove players from teams already maxed out:
         if drop_maxed_out:
             if len(self.squad.maxed_out_teams):
                 df = df.loc[~df["team"].isin(self.squad.maxed_out_teams)]
+                verbose_print(f"Dropped {n - len(df):,} rows for `drop_maxed_out`")
+                n = len(df)
 
         # Rename scoring columns to generic names:
         df.rename(columns={self.scoring_metric: "score", self.val_metric: "score_per_value"}, inplace=True)
@@ -197,9 +219,9 @@ class SquadBuilder:
         """Get the total fantasy points the currently selected team would have
         achieved in a given gameweek."""
         selected = self.squad.selected_list
-        points = self._player_info.points_scored(year=year, week=week)
+        points = self.PlayerInformation.points_scored(year=year, week=week)
         points = {k: v for k, v in points.items() if k in selected}
-        minutes = self._player_info.minutes_played(year, week)
+        minutes = self.PlayerInformation.minutes_played(year, week)
         minutes = {k: v for k, v in minutes.items() if k in selected}
 
         # Double captain/vice-captain's points if they played:
@@ -249,9 +271,40 @@ class SquadBuilder:
 
     def add_player(self, code: int, year: int, week: int, live=False):
         """Add a player to the current squad."""
-        player = self._player_info.get_player(code, year, week, live)
-        score = self._scoring_data.get_player_score(code, year, week)
+        player = self.PlayerInformation.get_player(code, year, week, live)
+        score = self.PlayerScorer.get_player_gw_score(code, year, week)
         player["score"] = score
         player["score_per_value"] = score / player["value"]
         self.squad.add_player(**player)
         print(f"Player added to squad: {player['name']}")
+
+    def top_fill(self, year: int, week: int, live: bool = False, n_top: int = 4,
+                 score_per_value: bool = False, **kwargs):
+        """Build a team from scratch selecting the `n_top` absolute highest
+        scoring players, then selecting from the bottom."""
+        self.squad.remove_all_players()
+
+        # Get all available players:
+        df = self.get_player_pool(year, week, live=live)
+
+        # Sort by score descending, value ascending:
+        score_col = f"{self.scoring_metric}_per_value" if score_per_value else self.scoring_metric
+        df.sort_values(by=[score_col, "value"], ascending=[False, True], inplace=True)
+
+        while len(self.squad.selected) < n_top:
+            df = df.loc[(df["position"].isin(self.squad.need_positions)) &
+                        (~df["team"].isin(self.squad.maxed_out_teams))]
+            row = df.reset_index().iloc[0].to_dict()
+            self.squad.add_player(**row)
+            df = df.iloc[1:]
+
+        # Now just keep adding cheap players:
+        df.sort_values(by=["value", "score"], ascending=[True, False], inplace=True)
+        while not self.squad.squad_full:
+            df = df.loc[(df["position"].isin(self.squad.need_positions)) &
+                        (~df["team"].isin(self.squad.maxed_out_teams))]
+            row = df.reset_index().iloc[0].to_dict()
+            self.squad.add_player(**row)
+            df = df.iloc[1:]
+
+        return self.squad.selected
