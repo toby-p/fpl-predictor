@@ -1,6 +1,39 @@
 
+import datetime
+import json
 import numpy as np
 import pandas as pd
+import pytz
+
+
+VERBOSE = False
+
+
+def verbose_print(msg: str):
+    if VERBOSE:
+        print(msg)
+
+
+def save_json(d: dict, fp: str):
+    """Overwrite the file at the specified filepath with a new JSON file.
+
+    Args:
+        d (dict): dictionary to save.
+        fp (str): location of JSON file.
+    """
+    fp = f"{fp}.json" if str.lower(fp)[-5:] != ".json" else fp
+
+    with open(fp, "w") as f:
+        json.dump(d, f)
+
+def now_as_string(date_format="%Y_%m_%d %H;%M;%S", timezone="US/Eastern"):
+    """Get a string representation of the current time in the desired
+    format. Reference for string formatting dates available here:
+        http://strftime.org/
+    A list of available timezones can be checked at: `pytz.all_timezones`."""
+    utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+    tz_now = utc_now.astimezone(pytz.timezone(timezone)).strftime(date_format)
+    return tz_now
 
 
 def next_week(year: int, week: int):

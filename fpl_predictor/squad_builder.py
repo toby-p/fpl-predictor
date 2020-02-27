@@ -2,7 +2,8 @@ from numbers import Number
 import numpy as np
 import pandas as pd
 
-from fpl_predictor.functions import previous_week
+from fpl_predictor.functions import previous_week, verbose_print
+from fpl_predictor.optimiser import optimiser
 from fpl_predictor.squad import Squad
 from fpl_predictor.player_scorer import PlayerScorer
 from fpl_predictor.api import ApiData
@@ -16,29 +17,21 @@ legal_formations = [{"GK": 1, "DEF": 3, "MID": 4, "FWD": 3},
                     {"GK": 1, "DEF": 5, "MID": 4, "FWD": 1},
                     {"GK": 1, "DEF": 5, "MID": 3, "FWD": 2}]
 
-VERBOSE = True
-
-
-def verbose_print(msg: str):
-    if VERBOSE:
-        print(msg)
-
 
 class SquadBuilder:
-    def __init__(self, **kwargs):
+    def __init__(self, scoring_metric: str = "total_points", n: int = 10,
+                 agg_func=np.mean, cross_seasons: bool = True,
+                 percent_chance: int = 100, min_minute_percent: float = 0.5):
         """Class for building a squad with the highest possible score on the
         `scoring_metric`. The team is picked FOR the year-week, using data up to
         and including the PREVIOUS year-week. If `live` then current data from
         the live API is used for availability, price etc."""
-        defaults = {"scoring_metric": "total_points", "n": 10, "agg_func": np.mean, "cross_seasons": True,
-                    "percent_chance": 100, "min_minute_percent": 0.5}
-        kw = {**defaults, **kwargs}
-        self.set_scoring_metric(kw["scoring_metric"])
-        self.set_n(kw["n"])
-        self.cross_seasons = kw["cross_seasons"]
-        self.agg_func = kw["agg_func"]
-        self.percent_chance = kw["percent_chance"]
-        self.min_minute_percent = kw["min_minute_percent"]
+        self.set_scoring_metric(scoring_metric)
+        self.set_n(n)
+        self.cross_seasons = cross_seasons
+        self.agg_func = agg_func
+        self.percent_chance = percent_chance
+        self.min_minute_percent = min_minute_percent
         self.PlayerScorer = PlayerScorer(metric=self.scoring_metric)
         self.ApiData = ApiData()
         self.PlayerInformation = PlayerInformation()
@@ -59,7 +52,7 @@ class SquadBuilder:
         self._ix_player_available = df.fillna(True)
 
         # Attributes for tracking team selections:
-        self.squad = Squad()
+        self.Squad = Squad()
         self.__first_team = pd.DataFrame()
 
     @property
@@ -151,14 +144,14 @@ class SquadBuilder:
 
         # Remove already selected players:
         if drop_selected:
-            df = df.loc[~df.index.isin(self.squad.selected_list)]
+            df = df.loc[~df.index.isin(self.Squad.selected_list)]
             verbose_print(f"Dropped {n - len(df):,} rows for `drop_selected`")
             n = len(df)
 
         # Remove players from teams already maxed out:
         if drop_maxed_out:
-            if len(self.squad.maxed_out_teams):
-                df = df.loc[~df["team"].isin(self.squad.maxed_out_teams)]
+            if len(self.Squad.maxed_out_teams):
+                df = df.loc[~df["team"].isin(self.Squad.maxed_out_teams)]
                 verbose_print(f"Dropped {n - len(df):,} rows for `drop_maxed_out`")
                 n = len(df)
 
@@ -189,44 +182,32 @@ class SquadBuilder:
         """Identify members of the currently selected squad who are unavailable
         for selection in the given game-week."""
         availability = self.player_availability(year, week, live=live, percent_chance=percent_chance)
-        codes = self.squad.selected_list
+        codes = self.Squad.selected_list
         return {k: v for k, v in availability.items() if k in codes and not v}
 
     def first_team_unavailable(self, year, week, live=False, percent_chance=100):
         """Identify members of the current first team who are unavailable for
         selection in the given game-week."""
         availability = self.player_availability(year, week, live=live, percent_chance=percent_chance)
-        codes = sorted(self.squad.first_team["code"])
+        codes = sorted(self.Squad.first_team["code"])
         return {k: v for k, v in availability.items() if k in codes and not v}
 
     @property
     def _test_new_squad(self):
         return Squad()
 
-    def build_squad(self, build_function, year: int, week: int, live=False,
-                    **kwargs):
-        """Build a new squad using the supplied `build_function`."""
-        build_function(self, year, week, live, **kwargs)
-
-    def optimise_squad(self, optimise_function, n_iterations: int, year: int,
-                       week: int, live=False, **kwargs):
-        """Optimise the currently selected squad using the supplied
-        `optimise_function`, attempting to run the optimising function
-        `n_iterations` times."""
-        optimise_function(self, n_iterations, year, week, live, **kwargs)
-
-    def team_points(self, year, week, benchboost=False):
+    def team_points(self, year, week, benchboost: bool = False):
         """Get the total fantasy points the currently selected team would have
         achieved in a given gameweek."""
-        selected = self.squad.selected_list
+        selected = self.Squad.selected_list
         points = self.PlayerInformation.points_scored(year=year, week=week)
         points = {k: v for k, v in points.items() if k in selected}
         minutes = self.PlayerInformation.minutes_played(year, week)
         minutes = {k: v for k, v in minutes.items() if k in selected}
 
         # Double captain/vice-captain's points if they played:
-        captain = list(self.squad.captain.keys())[0]
-        vice_captain = list(self.squad.vice_captain.keys())[0]
+        captain = list(self.Squad.captain.keys())[0]
+        vice_captain = list(self.Squad.vice_captain.keys())[0]
         if minutes[captain] > 0:
             points[captain] = points[captain] * 2
         elif minutes[vice_captain] > 0:
@@ -235,13 +216,13 @@ class SquadBuilder:
         if benchboost:
             return {k: v for k, v in points.items() if k in selected}
 
-        to_score = self.squad.first_team
+        to_score = self.Squad.first_team
 
         # Sub in substitutes who played over first-teamers who didn't:
-        subs = self.squad.substitutes
+        subs = self.Squad.substitutes
         subs["minutes"] = subs["code"].map(minutes)
         subs_played = subs.loc[subs["minutes"] > 0]
-        first_team = self.squad.first_team
+        first_team = self.Squad.first_team
         first_team["minutes"] = first_team["code"].map(minutes)
         didnt_play = first_team.loc[first_team["minutes"] == 0]
 
@@ -275,36 +256,42 @@ class SquadBuilder:
         score = self.PlayerScorer.get_player_gw_score(code, year, week)
         player["score"] = score
         player["score_per_value"] = score / player["value"]
-        self.squad.add_player(**player)
-        print(f"Player added to squad: {player['name']}")
+        self.Squad.add_player(**player)
+        verbose_print(f"Player added to squad: {player['name']}")
 
     def top_fill(self, year: int, week: int, live: bool = False, n_top: int = 4,
                  score_per_value: bool = False, **kwargs):
         """Build a team from scratch selecting the `n_top` absolute highest
         scoring players, then selecting from the bottom."""
-        self.squad.remove_all_players()
+        self.Squad.remove_all_players()
 
         # Get all available players:
         df = self.get_player_pool(year, week, live=live)
 
         # Sort by score descending, value ascending:
-        score_col = f"{self.scoring_metric}_per_value" if score_per_value else self.scoring_metric
+        score_col = "score_per_value" if score_per_value else "score"
         df.sort_values(by=[score_col, "value"], ascending=[False, True], inplace=True)
 
-        while len(self.squad.selected) < n_top:
-            df = df.loc[(df["position"].isin(self.squad.need_positions)) &
-                        (~df["team"].isin(self.squad.maxed_out_teams))]
+        while len(self.Squad.selected) < n_top:
+            df = df.loc[(df["position"].isin(self.Squad.need_positions)) &
+                        (~df["team"].isin(self.Squad.maxed_out_teams))]
             row = df.reset_index().iloc[0].to_dict()
-            self.squad.add_player(**row)
+            self.Squad.add_player(**row)
             df = df.iloc[1:]
 
         # Now just keep adding cheap players:
         df.sort_values(by=["value", "score"], ascending=[True, False], inplace=True)
-        while not self.squad.squad_full:
-            df = df.loc[(df["position"].isin(self.squad.need_positions)) &
-                        (~df["team"].isin(self.squad.maxed_out_teams))]
+        while not self.Squad.squad_full:
+            df = df.loc[(df["position"].isin(self.Squad.need_positions)) &
+                        (~df["team"].isin(self.Squad.maxed_out_teams))]
             row = df.reset_index().iloc[0].to_dict()
-            self.squad.add_player(**row)
+            self.Squad.add_player(**row)
             df = df.iloc[1:]
 
-        return self.squad.selected
+        return self.Squad.selected
+
+    def optimize(self, year: int, week: int, iterations: int = 100,
+
+                 live: bool = False, r: int = 2, score_per_value: bool = False):
+        optimiser(self, year=year, week=week, iterations=iterations, live=live, r=r, score_per_value=score_per_value)
+        return self.Squad.selected

@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 from nav import DIR_SQUADS
-
+from fpl_predictor.functions import verbose_print
 
 class NotEnoughMoney(Exception):
     def __init__(self, msg):
@@ -96,7 +96,7 @@ class Squad:
             raise ValueError(f"code not in team: {code}")
         name = self.selected.loc[self.selected["code"] == code, "name"].values[0]
         self.selected = self.selected.loc[self.selected["code"] != code].reset_index(drop=True)
-        print(f"Removed player from squad ({len(self.selected)} remain): {name}")
+        verbose_print(f"Removed player from squad ({len(self.selected)} remain): {name}")
 
     @property
     def squad_full(self):
@@ -129,19 +129,19 @@ class Squad:
     def save_squad(self, filename):
         fp = os.path.join(DIR_SQUADS, f"{filename}.csv")
         self.selected.to_csv(fp, encoding="utf-8", index=False)
-        print(f"Squad of {len(self.selected)} players saved at: {fp}")
+        verbose_print(f"Squad of {len(self.selected)} players saved at: {fp}")
 
     def load_squad(self, filename):
         fp = os.path.join(DIR_SQUADS, f"{filename}.csv")
         assert os.path.isfile(fp), f"Squad file not found: {filename}"
         df = pd.read_csv(fp, encoding="utf-8")
         self.selected = df
-        print(f"Squad of {len(self.selected)} players loaded from {fp}")
+        verbose_print(f"Squad of {len(self.selected)} players loaded from {fp}")
 
     @property
     def first_team(self):
         if not self.squad_full:
-            print("Squad not full, can't pick first team.")
+            verbose_print("Squad not full, can't pick first team.")
             return
         df = self.selected
         df.sort_values(by=["score", "score_per_value", "value"], ascending=[False, False, True], inplace=True)
@@ -175,28 +175,28 @@ class Squad:
     @property
     def total_first_team_score(self):
         if not self.squad_full:
-            print("Squad not full.")
+            verbose_print("Squad not full.")
             return
         return self.first_team["score"].sum()
 
     @property
     def total_first_team_score_per_val(self):
         if not self.squad_full:
-            print("Squad not full.")
+            verbose_print("Squad not full.")
             return
         return self.first_team["score_per_value"].sum()
 
     @property
     def total_first_team_value(self):
         if not self.squad_full:
-            print("Squad not full.")
+            verbose_print("Squad not full.")
             return
         return self.first_team["value"].sum()
 
     @property
     def captain(self):
         if not self.squad_full:
-            print("Squad not full, can't pick captain.")
+            verbose_print("Squad not full, can't pick captain.")
             return
         else:
             df = self.selected
@@ -207,7 +207,7 @@ class Squad:
     @property
     def vice_captain(self):
         if not self.squad_full:
-            print("Squad not full, can't pick vice-captain.")
+            verbose_print("Squad not full, can't pick vice-captain.")
             return
         else:
             df = self.selected
