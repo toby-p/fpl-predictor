@@ -14,5 +14,5 @@ __deprecated.py
 /data/ml_datasets/
 !/data/ml_datasets/README.txt
 
-# /data/test_results/
-# !/data/test_results/results_master.csv
+/data/test_results/
+!/data/test_results/results_master.csv
