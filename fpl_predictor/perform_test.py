@@ -67,10 +67,8 @@ def perform_test(metrics: list, ns: list, year: int, weeks: list,
 
     # Iterate through new test combinations saving scores:
     first, count = combinations[0], 1
-    functions = {"mean": np.mean, "sum": np.sum}
     af, cs, pc, mmp = first[0], first[1], first[2], first[3]
-    sqb = SquadBuilder(agg_func=functions[af], cross_seasons=cs,
-                       percent_chance=pc, min_minute_percent=mmp)
+    sqb = SquadBuilder(agg_func=af, cross_seasons=cs, percent_chance=pc, min_minute_percent=mmp)
     for combo in combinations:
         af, cs, pc, mmp = combo[0], combo[1], combo[2], combo[3]
         metric, n, week = combo[4], combo[5], combo[6]
@@ -78,8 +76,7 @@ def perform_test(metrics: list, ns: list, year: int, weeks: list,
                     sqb.cross_seasons == cs,
                     sqb.percent_chance == pc,
                     sqb.min_minute_percent == mmp]):
-            sqb = SquadBuilder(agg_func=functions[af], cross_seasons=cs,
-                               percent_chance=pc, min_minute_percent=mmp)
+            sqb = SquadBuilder(agg_func=af, cross_seasons=cs, percent_chance=pc, min_minute_percent=mmp)
         print(f"Current test: {count:,}", end="\r", file=sys.stdout)
         scores = PointsTest(sqb, year=year, week=week, metric=metric, n=n)
         results = dict(metric=metric, n=n, year=year, week=week, cross_seasons=cs,
@@ -117,8 +114,9 @@ def collect_all_test_results():
 
 
 if __name__ == "__main__":
-    metrics = ["ict_index", "total_points", "selected", "transfers_in", "bonus", "bps"]
-    ns = [2, 5, 10, 20]
+    metrics = ["selected", "transfers_in", "ict_index", "total_points", "bonus", "bps"]
+    metrics = ["selected", "transfers_in"]
+    ns = [1, 3, 4]
     cross_seasons = [False]
     year = 2019
     weeks = list(range(1, 28, 1))

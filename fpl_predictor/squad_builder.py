@@ -20,7 +20,7 @@ legal_formations = [{"GK": 1, "DEF": 3, "MID": 4, "FWD": 3},
 
 class SquadBuilder:
     def __init__(self, scoring_metric: str = "total_points", n: int = 10,
-                 agg_func=np.mean, cross_seasons: bool = True,
+                 agg_func: str = "mean", cross_seasons: bool = True,
                  percent_chance: int = 100, min_minute_percent: float = 0.5):
         """Class for building a squad with the highest possible score on the
         `scoring_metric`. The team is picked FOR the year-week, using data up to
@@ -29,7 +29,8 @@ class SquadBuilder:
         self.set_scoring_metric(scoring_metric)
         self.set_n(n)
         self.cross_seasons = cross_seasons
-        self.agg_func = agg_func
+        functions = dict(mean=np.mean, sum=np.sum)
+        self.agg_func = functions[agg_func]
         self.percent_chance = percent_chance
         self.min_minute_percent = min_minute_percent
         self.PlayerScorer = PlayerScorer(metric=self.scoring_metric)
@@ -291,7 +292,6 @@ class SquadBuilder:
         return self.Squad.selected
 
     def optimize(self, year: int, week: int, iterations: int = 100,
-
                  live: bool = False, r: int = 2, score_per_value: bool = False):
         optimiser(self, year=year, week=week, iterations=iterations, live=live, r=r, score_per_value=score_per_value)
         return self.Squad.selected
