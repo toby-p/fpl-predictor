@@ -62,6 +62,8 @@ def perform_test(metrics: list, ns: list, year: int, weeks: list,
                             df["metric"], df["n"], df["week"]]))
     combinations = [c for c in combinations if c not in df_combos]
     print(f"Performing {len(combinations):,} tests")
+    if not len(combinations):
+        return
 
     # Iterate through new test combinations saving scores:
     first, count = combinations[0], 1
