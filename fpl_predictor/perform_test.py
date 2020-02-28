@@ -115,9 +115,8 @@ def collect_all_test_results():
 
 if __name__ == "__main__":
     metrics = ["selected", "transfers_in", "ict_index", "total_points", "bonus", "bps"]
-    metrics = ["selected", "transfers_in"]
-    ns = [1, 3, 4]
-    cross_seasons = [False]
+    ns = list(range(1, 38, 1))
+    cross_seasons = [False, True]
     year = 2019
     weeks = list(range(1, 28, 1))
     perform_test(metrics=metrics, ns=ns, year=year, weeks=weeks, cross_seasons=cross_seasons)
